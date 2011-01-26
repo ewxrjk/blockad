@@ -12,5 +12,6 @@ config.log
 config.status
 configure
 stamp-h1
-watchfile
+src/watchfile
 config.aux
+tests/watch-results

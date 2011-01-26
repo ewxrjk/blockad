@@ -1,0 +1,30 @@
+#! /bin/sh
+set -e
+export PATH="../src:${PATH}"
+
+rm -f WatchMe
+
+watchfile WatchMe > watch-results &
+pid=$!
+
+sleep 1                         # allow watchfile to start up
+
+echo one > WatchMe
+echo two >> WatchMe
+
+mv WatchMe DontWatchMe
+echo three >> DontWatchMe
+
+echo four > WatchMe
+echo five >> WatchMe
+mv DontWatchMe WatchMe
+
+exec 3>>WatchMe
+rm -f WatchMe
+
+echo six >&3
+
+sleep 1                         # allow watchfile to flush buffers
+kill ${pid}
+
+diff -u watch-expect watch-results
