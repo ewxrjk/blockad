@@ -1,3 +1,4 @@
+#include <config.h>
 #include "Watcher.h"
 #include <sys/inotify.h>
 #include <cerrno>

@@ -1,5 +1,6 @@
 *~
 *.o
+*.a
 .deps
 Makefile
 Makefile.in
@@ -12,6 +13,7 @@ config.log
 config.status
 configure
 stamp-h1
-src/watchfile
+tests/watchfile
+tests/regtest
 config.aux
 tests/watch-results
