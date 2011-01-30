@@ -2,6 +2,9 @@
 #include "ConfFile.h"
 #include "StdioFile.h"
 #include <sstream>
+#include <cerrno>
+#include <cstdlib>
+#include <climits>
 
 // ConfFile -------------------------------------------------------------------
 
@@ -24,11 +27,30 @@ void ConfFile::parse() {
     if(!splitLine(line, bits))
       continue;                 // skip blank lines
     if(bits[0] == "watch") {
+      // watch PATH
       if(bits.size() < 2)
         throw SyntaxError(this, "missing argument to 'watch'");
       else if(bits.size() > 2)
         throw SyntaxError(this, "excess arguments to 'watch'");
-      files.insert(bits[1]);
+      files.push_back(bits[1]);
+    } else if(bits[0] == "address") {
+      // address REGEXP [CAPTURE-NUMBER]
+      if(bits.size() < 2)
+        throw SyntaxError(this, "missing argument to 'address'");
+      else if(bits.size() > 3)
+        throw SyntaxError(this, "excess arguments to 'address'");
+      Match m;
+      m.regex = bits[1];
+      if(bits.size() == 3) {
+        char *end;
+        errno = 0;
+        long c = strtol(bits[2].c_str(), &end, 10);
+        if(errno || end == bits[2].c_str() || *end || c < 1 || c > INT_MAX)
+          throw SyntaxError(this, "invalid capture argument to 'address'");
+        m.capture = c;
+      } else
+        m.capture = 1;
+      patterns.push_back(m);
     } else
       throw SyntaxError(this, "unrecognized directive '" + bits[0] + "'");
   }

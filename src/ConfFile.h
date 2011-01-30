@@ -31,8 +31,14 @@ public:
                               const std::string &s);
   };
 
+  struct Match {
+    std::string regex;                  // regex to match
+    int capture;                        // capture number
+  };
+
   // Configuration data
-  std::set<std::string> files;          // files to watch
+  std::vector<std::string> files;       // files to watch
+  std::vector<Match> patterns;          // patterns to match
 private:
   std::string path;
   int lineno;
