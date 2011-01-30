@@ -8,13 +8,12 @@
 #include <cstring>
 #include <cstdio>
 
+#include "Regex.h"
+
 class ConfFile {
 public:
+  ConfFile();
   ConfFile(const std::string &path);
-
-  // Reload the configuration file.
-  // If the new version is broken, the configuration is not modified.
-  void reload();
 
   // Base class for configuration file errors
   class Error: public std::runtime_error {
@@ -27,12 +26,14 @@ public:
   public:
     SyntaxError(const ConfFile *cf,
                 const std::string &s): Error(format(cf, s)) {}
+  private:
     static std::string format(const ConfFile *cf,
                               const std::string &s);
   };
 
   struct Match {
-    std::string regex;                  // regex to match
+    Match(const Regex &r, int c): regex(r), capture(c) {}
+    Regex regex;                        // regex to match
     int capture;                        // capture number
   };
 

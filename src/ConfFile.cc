@@ -12,11 +12,6 @@ ConfFile::ConfFile(const std::string &path_): path(path_) {
   parse();
 }
 
-void ConfFile::reload() {
-  ConfFile newConf(path);       // throws on error
-  *this = newConf;
-}
-
 void ConfFile::parse() {
   StdioFile f(path, "r");
   std::string line;
@@ -39,18 +34,23 @@ void ConfFile::parse() {
         throw SyntaxError(this, "missing argument to 'address'");
       else if(bits.size() > 3)
         throw SyntaxError(this, "excess arguments to 'address'");
-      Match m;
-      m.regex = bits[1];
+      long c;
       if(bits.size() == 3) {
         char *end;
         errno = 0;
-        long c = strtol(bits[2].c_str(), &end, 10);
+        c = strtol(bits[2].c_str(), &end, 10);
         if(errno || end == bits[2].c_str() || *end || c < 1 || c > INT_MAX)
           throw SyntaxError(this, "invalid capture argument to 'address'");
-        m.capture = c;
       } else
-        m.capture = 1;
-      patterns.push_back(m);
+        c = 1;
+      try {
+        patterns.push_back(Match(bits[1], c));
+        // TODO we should check re_nsub against c
+      } catch(Regex::Error &e) {
+        // Add the filename and line number to any errors about the
+        // regexp
+        throw SyntaxError(this, std::string("invalid regexp: ") + e.what());
+      }
     } else
       throw SyntaxError(this, "unrecognized directive '" + bits[0] + "'");
   }

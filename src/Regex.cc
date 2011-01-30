@@ -4,10 +4,31 @@
 // Regex ----------------------------------------------------------------------
 
 Regex::Regex(const std::string &regex, int cflags_, bool basic):
-  cflags(cflags_ | (basic ? 0 : REG_EXTENDED)) {
-  int rc = regcomp(&reg, regex.c_str(), cflags);
+  creg(new CompiledRegex(cflags_ | (basic ? 0 : REG_EXTENDED))) {
+  int rc = regcomp(&creg->reg, regex.c_str(), creg->cflags);
   if(rc)
-    throw CompilationError(rc, &reg);
+    throw CompilationError(rc, &creg->reg);
+}
+
+Regex::Regex(const Regex &that): creg(that.creg) {
+  ++creg->refcount;
+}
+
+Regex &Regex::operator=(const Regex &that) {
+  if(this != &that) {
+    if(--creg->refcount == 0)
+      delete creg;
+    creg = that.creg;
+    ++creg->refcount;
+  }
+  return *this;
+}
+
+Regex::~Regex() {
+  if(--creg->refcount == 0){
+    regfree(&creg->reg);
+    delete creg;
+  }
 }
 
 int Regex::execute(const std::string &s,
@@ -15,7 +36,7 @@ int Regex::execute(const std::string &s,
                    int eflags,
                    size_t nmatch) const {
   matches.resize(nmatch);
-  int rc = regexec(&reg, s.c_str(), nmatch, &matches[0], eflags);
+  int rc = regexec(&creg->reg, s.c_str(), nmatch, &matches[0], eflags);
   // Strip any unused matches table entries
   if(rc == 0) {
     while(matches.size() > 0 && matches.back().rm_so == -1)
@@ -26,8 +47,8 @@ int Regex::execute(const std::string &s,
 
 int Regex::execute(const std::string &s,
                    int eflags) const {
-  if(cflags & REG_NOSUB)
-    return regexec(&reg, s.c_str(), 0, NULL, eflags);
+  if(creg->cflags & REG_NOSUB)
+    return regexec(&creg->reg, s.c_str(), 0, NULL, eflags);
   else {
     std::vector<regmatch_t> matches;
     return execute(s, matches, eflags, default_nmatches);

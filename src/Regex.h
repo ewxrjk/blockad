@@ -17,9 +17,11 @@ public:
   // 'basic' as true.  The justification is that BREs are obsolete.
   Regex(const std::string &regex, int cflags = 0, bool basic = false);
 
-  ~Regex() {
-    regfree(&reg);
-  }
+  // Copy constructor/assignment
+  Regex(const Regex &);
+  Regex &operator=(const Regex &);
+
+  ~Regex();
 
   // Execute the regex.  Returns 0 for a match and REG_NOMATCH for a match
   // failure.  matches is resized to be nmatch for the call, and then resized
@@ -54,8 +56,17 @@ public:
   };
 
 private:
-  regex_t reg;
-  int cflags;
+  // We don't (formally) know if copying regex_t to a new address is safe, and
+  // it may also not be efficient, so we have just one copy and maintain a
+  // reference count in the constructors, operator= and destructor of Regex.
+  struct CompiledRegex {
+    CompiledRegex(int cflags): refcount(1), cflags(cflags) {}
+    int refcount;
+    regex_t reg;
+    int cflags;
+  };
+
+  CompiledRegex *creg;
 };
 
 #endif /* REGEX_H */

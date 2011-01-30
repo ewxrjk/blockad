@@ -5,3 +5,6 @@ watch "file 2"
 watch 'file 3'
 watch "\a\b\t\n\v\f\r\\\"\'\?\001\377\x1\x0001\xff"
 
+address 'address=([^ ]*)'
+address 'address=([^ ]*)' 1
+
