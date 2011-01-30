@@ -11,6 +11,8 @@ class Regex {
 public:
   static const int default_nmatches = 64;
 
+  Regex();
+
   // Compile REGEX.  Throw CompilationError on failure.
   //
   // By default REG_EXTENDED is always used.  You can suppress this by passing
@@ -22,6 +24,8 @@ public:
   Regex &operator=(const Regex &);
 
   ~Regex();
+
+  void compile(const std::string &regex, int cflags = 0, bool basic = false);
 
   // Execute the regex.  Returns 0 for a match and REG_NOMATCH for a match
   // failure.  matches is resized to be nmatch for the call, and then resized
@@ -39,6 +43,9 @@ public:
   inline bool matches(const std::string &s, int eflags = 0) const {
     return execute(s, eflags) == 0;
   }
+
+  // Count number of captures
+  inline size_t captures() const { return creg->reg.re_nsub; }
 
   // Base class for Regex errors
   class Error: public std::runtime_error {
@@ -60,10 +67,12 @@ private:
   // it may also not be efficient, so we have just one copy and maintain a
   // reference count in the constructors, operator= and destructor of Regex.
   struct CompiledRegex {
-    CompiledRegex(int cflags): refcount(1), cflags(cflags) {}
+    CompiledRegex(int cflags): refcount(1), cflags(cflags), compiled(false) {}
+    ~CompiledRegex() { if(compiled) regfree(&reg); }
     int refcount;
     regex_t reg;
     int cflags;
+    bool compiled;
   };
 
   CompiledRegex *creg;

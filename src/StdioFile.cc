@@ -31,7 +31,9 @@ void StdioFile::open(const std::string &path_, const std::string &mode) {
 }
 
 void StdioFile::close() {
-  if(fclose(fp) < 0)
+  FILE *ofp = fp;
+  fp = NULL;
+  if(fclose(ofp) < 0)
     throw IOError("closing", path, errno);
 }
 

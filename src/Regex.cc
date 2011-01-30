@@ -3,32 +3,44 @@
 
 // Regex ----------------------------------------------------------------------
 
-Regex::Regex(const std::string &regex, int cflags_, bool basic):
-  creg(new CompiledRegex(cflags_ | (basic ? 0 : REG_EXTENDED))) {
-  int rc = regcomp(&creg->reg, regex.c_str(), creg->cflags);
+Regex::Regex(): creg(NULL) {
+}
+
+Regex::Regex(const std::string &regex, int cflags, bool basic): creg(NULL) {
+  compile(regex, cflags, basic);
+}
+
+void Regex::compile(const std::string &regex, int cflags, bool basic) {
+  if(creg && --creg->refcount)
+    delete creg;
+  if(!basic)
+    cflags |= REG_EXTENDED;
+  creg = new CompiledRegex(cflags);
+  int rc = regcomp(&creg->reg, regex.c_str(), cflags);
   if(rc)
     throw CompilationError(rc, &creg->reg);
+  creg->compiled = true;
 }
 
 Regex::Regex(const Regex &that): creg(that.creg) {
-  ++creg->refcount;
+  if(creg)
+    ++creg->refcount;
 }
 
 Regex &Regex::operator=(const Regex &that) {
   if(this != &that) {
-    if(--creg->refcount == 0)
+    if(creg && --creg->refcount == 0)
       delete creg;
     creg = that.creg;
-    ++creg->refcount;
+    if(creg)
+      ++creg->refcount;
   }
   return *this;
 }
 
 Regex::~Regex() {
-  if(--creg->refcount == 0){
-    regfree(&creg->reg);
+  if(creg && --creg->refcount == 0)
     delete creg;
-  }
 }
 
 int Regex::execute(const std::string &s,

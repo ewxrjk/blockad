@@ -6,18 +6,27 @@
 #include <cstdio>
 
 // Wrapper for FILE *
+//  - provides RAIIish cleanup
+//  - reports IO errors as exceptions
+//  - knows the path it was opened with
 class StdioFile {
 public:
   StdioFile();
+  // Args as per fopen().
   StdioFile(const std::string &path, const std::string &mode = "r");
+  // If fclose() fails in the destructor, the error is ignored.
   ~StdioFile();
 
+  // Args as per fopen().  If this file was already open it is closed and any
+  // errors ignored.
   void open(const std::string &path, const std::string &mode = "r");
-  void close();
+
+  void close();                         // throws on error, unlike ~StdioFile()
 
   int readc();                          // return EOF or char
   bool readline(std::string &line);     // return true if a line, false at EOF
   
+  // Thrown if any IO error occurs
   class IOError: public std::runtime_error {
   public:
     IOError(const std::string &what,
