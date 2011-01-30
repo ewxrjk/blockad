@@ -17,3 +17,4 @@ tests/watchfile
 tests/regtest
 config.aux
 tests/watch-results
+tests/conftest
