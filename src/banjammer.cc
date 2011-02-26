@@ -3,13 +3,13 @@
 #include "ConfFile.h"
 #include "Address.h"
 #include "Regex.h"
+#include "log.h"
 #include <sys/select.h>
 #include <cerrno>
 #include <cstdlib>
 #include <map>
 #include <deque>
 
-bool debug;
 ConfFile *config;
 
 struct AddressData {
@@ -41,6 +41,7 @@ public:
   }
 
   void detectedAddress(const Address &a) {
+    debug("detected %s", a.asString().c_str());
     // Honor exemption list
     // TODO
     // Find (or create) the data for this address
@@ -63,7 +64,8 @@ public:
   }
 
   void banAddress(const Address &a) {
-    fprintf(stderr, "would ban %s\n", a.asString().c_str());
+    info("banning %s", a.asString().c_str());
+    //TODO
   }
 };
 
@@ -75,7 +77,7 @@ int main(int argc, char **argv) {
   while((n = getopt(argc, argv, "dfc:")) >= 0) {
     switch(n) {
     case 'd':
-      debug = true;
+      debugging = true;
       break;
     case 'f':
       background = false;
@@ -88,11 +90,20 @@ int main(int argc, char **argv) {
     }
   }
   try {
+    // Become a daemon
+    if(background) {
+      const char *progname;
+      if((progname = strrchr(argv[0], '/')))
+        ++progname;
+      else
+        progname = argv[0];
+      daemon(0, 1);
+      useSyslog(progname);
+      debug("daemonized");
+    }
     // Read configuration
     config = new ConfFile(conffile);
-    // Become a daemon
-    if(background)
-      daemon(0, 1);
+    info("started");
     // TODO catch SIGHUP
     for(;;) {
       std::vector<BanWatcher *> watchers;
@@ -112,7 +123,7 @@ int main(int argc, char **argv) {
         if(n < 0) {
           if(errno == EINTR)
             continue;
-          fprintf(stderr, "select: %s\n", strerror(errno)); // TODO
+          error("select: %s", strerror(errno));
           exit(-1);
         }
         for(size_t i = 0; i < watchers.size(); ++i) {
@@ -127,7 +138,7 @@ int main(int argc, char **argv) {
         delete watchers[i];
     }
   } catch(std::runtime_error &e) {
-    fprintf(stderr, "ERROR: %s\n", e.what()); // TODO
+    error("%s", e.what());
     exit(1);
   }
   exit(0);
