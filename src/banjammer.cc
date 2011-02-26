@@ -136,7 +136,7 @@ static void updateWatchers(const ConfFile *oldConfig,
 
 int main(int argc, char **argv) {
   int n;
-  bool background = false;              // TODO should be true
+  bool background = true;
   const char *conffile = "/etc/banjammer.conf";
 
   while((n = getopt(argc, argv, "dfc:")) >= 0) {
@@ -162,7 +162,10 @@ int main(int argc, char **argv) {
         ++progname;
       else
         progname = argv[0];
-      daemon(0, 1);
+      if(daemon(1, 0)) {
+        error("daemon: %s", strerror(errno));
+        exit(-1);
+      }
       useSyslog(progname);
       debug("daemonized");
     }
@@ -188,6 +191,7 @@ int main(int argc, char **argv) {
     struct sigaction sa;
     memset(&sa, 0, sizeof sa);
     sa.sa_handler = sighup_handler;
+    sa.sa_flags = SA_RESTART;
     if(sigaction(SIGHUP, &sa, NULL) < 0) {
       error("sigaction: %s", strerror(errno));
       exit(-1);
