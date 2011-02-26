@@ -15,6 +15,7 @@ Installation
 
   ./configure
   make
+  sudo cp banjammer.conf /etc   # and edit it to taste
   sudo make install
 
 See 'man banjammer' for documentation.

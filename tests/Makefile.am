@@ -22,7 +22,7 @@ addrtest_SOURCES=addrtest.cc
 LDADD=../src/libutils.a
 AM_CPPFLAGS=-I${top_srcdir}/src
 TESTS=t-watch regtest conftest addrtest
-EXTRA_DIST=testconf1
+EXTRA_DIST=testconf1 watch-expect
 
 clean-local:
 	rm -f watch-results
