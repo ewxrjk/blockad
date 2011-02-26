@@ -1,0 +1,79 @@
+.TH banjammer 8
+.SH NAME
+banjammer \- block persistent hackers
+.SH SYNOPSIS
+.B banjammer
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+.B banjammer
+reads your logfiles and when it detects persistent hacking attempts,
+blocks them using the kernel's firewall.
+.SH OPTIONS
+.TP
+.B -d
+Debug mode.
+.TP
+.B -f
+Foreground mode.
+(By default
+.B banjammer
+runs as a daemon.)
+.TP
+.B -c \fIPATH\fR
+Read configuration file.
+The default is
+.IR /etc/banjammer.conf .
+.SH CONFIGURATION
+The following directives can be used in the configuration file:
+.TP
+.B watch \fIPATH\fR
+Watch a logfile.
+For example, \fB/var/log/auth.log\fR.
+.TP
+.B address \fIREGEX\fR [\fIN\fR]
+Defines the regex which matches break-in attempts.
+The source address should be the \fIN\fRth capture.
+It may be an IPv4 address, an IPv6 address or a hostname.
+.IP
+.I REGEX
+is a POSIX extended regular expression.
+It is recommended that it be surrounded with single quotes (see below).
+.IP
+The default is the first capture, i.e. \fIN\fR = 1.
+.TP
+.B rate \fIATTEMPTS\fB/\fIINTERVAL\fR
+Set the failed login rate which will cause a ban.
+Any address which exceeds this rate will be banned.
+.IP
+\fIINTERVAL\fR can be \fBminute\fR, \fBhour\fR, \fBday\fR or \fBweek\fR.
+.IP
+The default rate is \fB5/hour\fR.
+.TP
+.B exempt \fIADDRESS\fR[\fB/\fIMASK\fR]
+Never ban \fIADDRESS\fR, or if a mask is specified, any address
+in the network \fIADDRESS\fR\fB/\fIMASK\fR.
+Use this to ensure you don't accidentally lock yourself out.
+.PP
+Arguments containing spaces must be quoted with double quote (in which
+C-style backslash escapes may be used) or single quotes (in which
+escapes can not be used).
+.PP
+Comments are marked with a \fB#\fR at the start of the line.
+.SH SIGNALS
+.TP
+.B SIGHUP
+Re-reads the configuration file.
+If the configuration file now contains a syntax error, the old version
+will be used.
+.SH FILES
+.TP
+.I /etc/banjammer.conf
+Configuration file.
+.SH NOTES
+If you restart the daemon then it will forget its record of past
+break-in attempts.
+This does not apply to re-reading the configuration file.
+.SH "SEE ALSO"
+.BR iptables (8),
+.BR ip6tables (8),
+.BR sshd (8)
