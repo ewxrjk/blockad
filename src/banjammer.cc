@@ -6,12 +6,24 @@
 #include <sys/select.h>
 #include <cerrno>
 #include <cstdlib>
+#include <map>
+#include <deque>
 
 bool debug;
 ConfFile *config;
 
+struct AddressData {
+  std::deque<time_t> times;
+  bool banned;
+
+  AddressData(): banned(false) {}
+};
+
+std::map<Address,AddressData> addressData;
+
 class BanWatcher: public Watcher {
 public:
+
   BanWatcher(const std::string &path): Watcher(path) {}
 
   void processLine(const std::string &line) {
@@ -23,9 +35,35 @@ public:
         std::string address(line, 
                             matches[m.capture].rm_so,
                             matches[m.capture].rm_eo - matches[m.capture].rm_so);
-        fprintf(stderr, "matched [%s]\n", address.c_str());
+        detectedAddress(Address(address));
       }
     }
+  }
+
+  void detectedAddress(const Address &a) {
+    // Honor exemption list
+    // TODO
+    // Find (or create) the data for this address
+    AddressData &ad = addressData[a];
+    if(!ad.banned) {
+      time_t now;
+      time(&now);
+      // Strip off too-old detection times
+      while(ad.times.size()
+            && ad.times.front() < now - config->rate_interval)
+        ad.times.pop_front();
+      // Add the latest detection time
+      ad.times.push_back(now);
+      // See if the ban rate has been exceeded
+      if(ad.times.size() > config->rate_max) {
+        banAddress(a);
+        ad.banned = true;
+      }
+    }
+  }
+
+  void banAddress(const Address &a) {
+    fprintf(stderr, "would ban %s\n", a.asString().c_str());
   }
 };
 
@@ -84,6 +122,7 @@ int main(int argc, char **argv) {
         }
         // TODO exit loop on SIGHUP
       }
+      // TODO actually we should transfer re-usable watchers to new array
       for(size_t i = 0; i < watchers.size(); ++i)
         delete watchers[i];
     }

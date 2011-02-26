@@ -40,8 +40,8 @@ public:
   // Configuration data
   std::vector<std::string> files;       // files to watch
   std::vector<Match> patterns;          // patterns to match
-  int rate_max;                         // maximum occurences per interval
-  int rate_interval;                    // interval size in seconds
+  unsigned rate_max;                    // maximum occurences per interval
+  unsigned rate_interval;               // interval size in seconds
 
   static const int rate_max_default = 5;
   static const int rate_interval_default = 60 * 60;

@@ -43,6 +43,10 @@ public:
     assign(s);
     return *this;
   }
+  
+  inline bool operator<(const Address &that) const {
+    return memcmp(&address, &that.address, sizeof (struct in6_addr)) < 0;
+  }
 
   void assign(const std::string &s);
 
