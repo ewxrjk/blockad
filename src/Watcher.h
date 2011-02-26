@@ -10,7 +10,7 @@ class Watcher {
 public:
   // Create a watcher for PATH
   Watcher(const std::string &path);
-  ~Watcher();
+  virtual ~Watcher();
 
   // Return the file descriptor to poll
   inline int pollfd() const { return ifd; }
