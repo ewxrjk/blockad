@@ -46,7 +46,11 @@ private:
   void detectedAddress(const Address &a) {
     debug("detected %s", a.asString().c_str());
     // Honor exemption list
-    // TODO
+    for(size_t i = 0; i < config->exempted.size(); ++i)
+      if(config->exempted[i].matches(a)) {
+        debug("%s is exempted", a.asString().c_str());
+        return;
+      }
     // Find (or create) the data for this address
     AddressData &ad = addressData[a];
     if(!ad.banned) {

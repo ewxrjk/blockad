@@ -20,6 +20,8 @@ ConfFile::ConfFile(const std::string &path_):
 }
 
 void ConfFile::parse() {
+  // TODO we should attach line numbers to SyntaxError (and catch other
+  // exceptions and present them as SyntaxErrors)
   StdioFile f(path, "r");
   std::string line;
   std::vector<std::string> bits;
@@ -111,7 +113,7 @@ void ConfFile::parse() {
         rate_interval = 60 * 60 * 24 * 7;
       else
         throw SyntaxError(this, "invalid interval for 'rate'");
-    } else if(bits[0] == "exempty") {
+    } else if(bits[0] == "exempt") {
       // exempty ADDRESS[/MASK]
 
       // Syntax check
@@ -119,9 +121,8 @@ void ConfFile::parse() {
         throw SyntaxError(this, "missing argument to 'exempt'");
       else if(bits.size() > 2)
         throw SyntaxError(this, "excess arguments to 'exempt'");
-
-      throw SyntaxError(this, "'exempty' is not implemented");
-      // TODO!
+      AddressPattern p(bits[1]);
+      exempted.push_back(p);
     } else
       throw SyntaxError(this, "unrecognized command '" + bits[0] + "'");
   }

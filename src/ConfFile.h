@@ -9,6 +9,7 @@
 #include <cstdio>
 
 #include "Regex.h"
+#include "Address.h"
 
 class ConfFile {
 public:
@@ -40,6 +41,7 @@ public:
   // Configuration data
   std::vector<std::string> files;       // files to watch
   std::vector<Match> patterns;          // patterns to match
+  std::vector<AddressPattern> exempted; // never ban these addresses
   unsigned rate_max;                    // maximum occurences per interval
   unsigned rate_interval;               // interval size in seconds
 
