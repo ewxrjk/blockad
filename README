@@ -15,10 +15,12 @@ Installation
 
   ./configure
   make
-  sudo cp banjammer.conf /etc   # and edit it to taste
   sudo make install
 
 See 'man banjammer' for documentation.
+
+There is an example config file in examples/banjammer.conf and an
+example init sscript in examples/banjammer.init.
 
 Licence
 =======

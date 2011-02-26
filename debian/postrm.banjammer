@@ -1,3 +1,4 @@
+#! /bin/sh
 #
 # Copyright © 2011 Richard Kettlewell
 #
@@ -14,8 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-SUBDIRS=src tests
-EXTRA_DIST=examples/banjammer.conf examples/banjammer.init .gitignore	\
-debian/changelog debian/conffiles.banjammer debian/control		\
-debian/copyright debian/rules debian/postinst.banjammer			\
-debian/prerm.banjammer debian/postrm.banjammer
+
+set -e
+
+case "$1" in
+purge )
+  update-rc.d disorder remove > /dev/null
+  ;;
+esac

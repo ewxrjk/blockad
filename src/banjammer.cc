@@ -154,8 +154,9 @@ int main(int argc, char **argv) {
   int n;
   bool background = true;
   const char *conffile = "/etc/banjammer.conf";
+  const char *pidfile = NULL;
 
-  while((n = getopt(argc, argv, "dfc:")) >= 0) {
+  while((n = getopt(argc, argv, "dfc:P:")) >= 0) {
     switch(n) {
     case 'd':
       debugging = true;
@@ -165,6 +166,9 @@ int main(int argc, char **argv) {
       break;
     case 'c':
       conffile = optarg;
+      break;
+    case 'P':
+      pidfile = optarg;
       break;
     default:
       exit(1);
@@ -184,6 +188,15 @@ int main(int argc, char **argv) {
       }
       useSyslog(progname);
       debug("daemonized");
+    }
+    if(pidfile) {
+      FILE *fp = fopen(pidfile, "w");
+      if(!fp
+         || fprintf(fp, "%lu\n", (unsigned long)getpid()) < 0
+         || fclose(fp) < 0) {
+        error("%s: %s", pidfile, strerror(errno));
+        exit(-1);
+      }
     }
     // Read configuration
     config = new ConfFile(conffile);

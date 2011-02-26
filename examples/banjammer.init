@@ -1,0 +1,124 @@
+#! /bin/sh
+#
+# Copyright © 2011 Richard Kettlewell
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+### BEGIN INIT INFO
+# Provides:          banjammer
+# Required-Start:    $local_fs $syslog $time
+# Required-Stop:     $local_fs $syslog $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start and stop Banjammer
+# Description:       Banjammer detects and blocks persistent hacking attempts
+### END INIT INFO
+
+set -e
+
+# What to run
+DAEMON=/usr/sbin/banjammer
+PIDFILE=/var/run/banjammer.pid
+
+# Detect whether we are on a Debian system
+if test -e /sbin/start-stop-daemon; then
+  variant=debian
+else
+  variant=generic
+fi
+
+# Debian-specific start/stop runes
+start_debian() {
+  printf "Starting hacker-blocking daemon: banjammer"
+  start-stop-daemon -S -q -x ${DAEMON}
+  echo .
+}
+
+stop_debian() {
+  printf "Stopping hacker-blocking daemon: banjammer"
+  start-stop-daemon -K -o -q -x ${DAEMON}
+  echo .
+}
+
+stop_debian() {
+  printf "Reloading hacker-blocking daemon: banjammer"
+  start-stop-daemon -K -s 1 -o -q -x ${DAEMON}
+  echo .
+}
+
+# Generic start/stop runes
+start_generic() {
+  if [ -e ${PIDFILE} ]; then
+    read pid < ${PIDFILE}
+    if kill -0 ${pid}; then
+      : already running
+      return
+    fi
+  fi
+  printf "Starting hacker-blocking daemon: banjammer"
+  ${DAEMON} -P ${PIDFILE}
+  echo .
+}
+
+stop_generic() {
+  if [ -e ${PIDFILE} ]; then
+    printf "Stopping hacker-blocking daemon: banjammer"
+    read pid < ${PIDFILE}
+    rm -f ${PIDFILE}
+    kill ${pid}
+    echo .
+  else
+    : not running
+  fi
+}
+
+reload_generic() {
+  if [ -e ${PIDFILE} ]; then
+    printf "Reloading hacker-blocking daemon: banjammer"
+    read pid < ${PIDFILE}
+    kill -1 ${pid}
+    echo .
+  else
+    : not running
+  fi
+}
+
+# Actions
+start() {
+  start_${variant}
+}
+
+stop() {
+  stop_${variant}
+}
+
+reload() {
+  reload_${variant}
+}
+
+restart() {
+  stop
+  sleep 2
+  start
+}
+
+# Inoke the request action
+case "$1" in
+start | stop | reload | restart ) "$1" ;;
+force-reload ) reload ;;
+* )
+  echo "usage: $0 start|stop|restart|reload" 1>&2
+  exit 1
+esac
