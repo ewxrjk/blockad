@@ -19,13 +19,12 @@ struct AddressData {
   AddressData(): banned(false) {}
 };
 
-std::map<Address,AddressData> addressData;
 
 class BanWatcher: public Watcher {
 public:
-
   BanWatcher(const std::string &path): Watcher(path) {}
 
+  // Called when a line is read from a logfile
   void processLine(const std::string &line) {
     std::vector<regmatch_t> matches;
     for(size_t i = 0; i < config->patterns.size(); ++i) {
@@ -40,6 +39,10 @@ public:
     }
   }
 
+private:
+  static std::map<Address,AddressData> addressData;
+
+  // Called when an address is detected
   void detectedAddress(const Address &a) {
     debug("detected %s", a.asString().c_str());
     // Honor exemption list
@@ -63,11 +66,29 @@ public:
     }
   }
 
+  // Ban an address
   void banAddress(const Address &a) {
     info("banning %s", a.asString().c_str());
-    //TODO
+    // Synthesize the firewall command.  The details differ depending on
+    // address family.  (And for platform...)
+    std::string command;
+#if __linux__
+    if(a.is4())
+      command = "iptables -I INPUT -j REJECT -s " + a.as4();
+    else
+      command = "ip6tables -I INPUT -j REJECT -s " + a.as6();
+#else
+# error Unsupported operating system
+#endif
+    debug("command: %s", command.c_str());
+    int rc = system(command.c_str());
+    if(rc)
+      error("ban command exited %#x: %s", rc, command.c_str());
+    // TODO we should capture iptables' stderr and report that
   }
 };
+
+std::map<Address,AddressData> BanWatcher::addressData;
 
 int main(int argc, char **argv) {
   int n;
