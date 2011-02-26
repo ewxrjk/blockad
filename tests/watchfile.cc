@@ -1,6 +1,7 @@
 #include <config.h>
 #include "Watcher.h"
 #include <cerrno>
+#include <cstdio>
 
 class MyWatcher: public Watcher {
 public:

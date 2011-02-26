@@ -2,6 +2,7 @@
 #include "Watcher.h"
 #include <sys/inotify.h>
 #include <cerrno>
+#include <cstdio>
 
 Watcher::Watcher(const std::string &path_arg): path(path_arg),
                                                base(getBaseName(path)),
