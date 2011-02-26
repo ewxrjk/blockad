@@ -78,6 +78,7 @@ pkg-banjammer: build
 	$(INSTALL_SCRIPT) debian/postrm.banjammer \
 		debian/banjammer/DEBIAN/postrm
 	$(MAKE) DESTDIR=`pwd`/debian/banjammer installdirs install
+	strip --remove-section=.comment --remove-section=.note debian/banjammer/usr/*bin/*
 	$(INSTALL_DATA) examples/banjammer.conf debian/banjammer/etc/banjammer.conf
 	$(INSTALL_SCRIPT) examples/banjammer.init debian/banjammer/etc/init.d/banjammer
 	$(INSTALL_DATA) README debian/banjammer/usr/share/doc/banjammer

@@ -18,4 +18,4 @@
 
 set -e
 
-update-rc.d disorder remove > /dev/null
+update-rc.d banjammer remove > /dev/null

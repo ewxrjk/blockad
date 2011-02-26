@@ -8,7 +8,7 @@ Package: banjammer
 Architecture: any
 Section: admin
 Priority: extra
-Depends: iptables,${shlib:Depends}
+Depends: iptables,${shlibs:Depends}
 Description: Block persistent hacking attempts
  Monitors logfiles and uses the kernel's firewall to block
  persistent hacking attempts.
