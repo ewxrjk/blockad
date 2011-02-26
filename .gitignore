@@ -18,3 +18,4 @@ tests/regtest
 config.aux
 tests/watch-results
 tests/conftest
+tests/addrtest

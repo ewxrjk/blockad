@@ -1,3 +1,3 @@
 noinst_LIBRARIES=libutils.a
-libutils_a_SOURCES=Regex.cc Regex.h Watcher.cc Watcher.h StdioFile.cc	\
-StdioFile.h ConfFile.cc ConfFile.h
+libutils_a_SOURCES=Address.cc ConfFile.cc Regex.cc StdioFile.cc	\
+Watcher.cc Address.h ConfFile.h Regex.h StdioFile.h Watcher.h
