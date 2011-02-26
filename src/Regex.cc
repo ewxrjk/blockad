@@ -72,6 +72,7 @@ int Regex::execute(const std::string &s,
 std::string Regex::Error::format(int rc, const regex_t *preg) {
   size_t size = regerror(rc, preg, NULL, 0);
   char *buffer = new char[size];
+  regerror(rc, preg, buffer, size);
   std::string r(buffer);
   delete[] buffer;
   return r;
