@@ -105,6 +105,35 @@ extern "C" {
   }
 };
 
+static void updateWatchers(const ConfFile *oldConfig,
+                           const ConfFile *newConfig,
+                           std::vector<Watcher *> &oldWatchers) {
+  size_t i, j;
+  std::vector<Watcher *> newWatchers;
+  for(i = 0; i < newConfig->files.size(); ++i) {
+    // Try and re-use the existing watcher
+    if(oldConfig) {
+      for(j = 0; j < oldConfig->files.size(); ++j)
+        if(newConfig->files[i] == oldConfig->files[i]
+           && oldWatchers[j] != NULL)
+          break;
+      if(j < oldConfig->files.size()) {
+        newWatchers.push_back(oldWatchers[j]);
+        oldWatchers[j] = NULL;
+        continue;
+      }
+    }
+    // We didn't manage to re-use an existing watcher
+    newWatchers.push_back(new BanWatcher(newConfig->files[i]));
+    nonblock(newWatchers[i]->pollfd());
+  }
+  // Delete redundant watchers
+  for(j = 0; j < oldWatchers.size(); ++j)
+    if(oldWatchers[j])
+      delete oldWatchers[j];
+  oldWatchers = newWatchers;
+}
+
 int main(int argc, char **argv) {
   int n;
   bool background = false;              // TODO should be true
@@ -163,12 +192,10 @@ int main(int argc, char **argv) {
       error("sigaction: %s", strerror(errno));
       exit(-1);
     }
+    std::vector<Watcher *> watchers;
+    // Create the initial watchers
+    updateWatchers(NULL, config, watchers);
     for(;;) {
-      std::vector<BanWatcher *> watchers;
-      for(size_t i = 0; i < config->files.size(); ++i) {
-        watchers.push_back(new BanWatcher(config->files[i]));\
-        nonblock(watchers[i]->pollfd());
-      }
       for(;;) {
         int maxfd;
         fd_set fds;
@@ -208,16 +235,19 @@ int main(int argc, char **argv) {
           break;
         }
       }
-      // TODO actually we should transfer re-usable watchers to new array
-      for(size_t i = 0; i < watchers.size(); ++i)
-        delete watchers[i];
+      // Read the new config
+      ConfFile *newConfig;
       try {
-        ConfFile *newConfig = new ConfFile(conffile);
-        delete config;
-        config = newConfig;
+        newConfig = new ConfFile(conffile);
       } catch(std::runtime_error &e) {
         error("%s", e.what());
+        continue;
       }
+      // Adjust watchers list
+      updateWatchers(config, newConfig, watchers);
+      // Use the new config hereafter
+      delete config;
+      config = newConfig;
     }
   } catch(std::runtime_error &e) {
     error("%s", e.what());
