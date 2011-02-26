@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-bin_PROGRAMS=watchfile regtest conftest addrtest
+noinst_PROGRAMS=watchfile regtest conftest addrtest
 watchfile_SOURCES=watchfile.cc
 regtest_SOURCES=regtest.cc
 conftest_SOURCES=conftest.cc

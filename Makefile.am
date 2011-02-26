@@ -15,4 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 SUBDIRS=src tests
-EXTRA_DIST=banjammer.conf .gitignore
+EXTRA_DIST=banjammer.conf .gitignore debian/changelog		\
+debian/conffiles.banjammer debian/control debian/copyright	\
+debian/rules

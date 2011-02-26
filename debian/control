@@ -1,0 +1,19 @@
+Source: banjammer
+Maintainer: Richard Kettlewell <rjk@greenend.org.uk>
+Section: admin
+Priority: extra
+Standards-Version: 3.8.1.0
+
+Package: banjammer
+Architecture: any
+Section: admin
+Priority: extra
+Depends: ${shlib:Depends}
+Description: Block persistent hacking attempts
+ Monitors logfiles and uses the kernel's firewall to block
+ persistent hacking attempts.
+ .
+ Uses regexp-based configuration to identify hacking attempts
+ and permits blocks of addresses to be exempted.
+ .
+ Supports IPv4 and IPv6 addresses.

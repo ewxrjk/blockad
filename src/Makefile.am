@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 noinst_LIBRARIES=libutils.a
-bin_PROGRAMS=banjammer
+sbin_PROGRAMS=banjammer
 man_MANS=banjammer.8
 libutils_a_SOURCES=Address.cc ConfFile.cc Regex.cc StdioFile.cc		\
 Watcher.cc Address.h ConfFile.h Regex.h StdioFile.h Watcher.h log.h	\

@@ -20,3 +20,8 @@ tests/watch-results
 tests/conftest
 tests/addrtest
 src/banjammer
+debian/files
+debian/substvars.*
+debian/banjammer
+INSTALL
+*.tar.gz
