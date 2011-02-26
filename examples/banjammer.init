@@ -52,7 +52,7 @@ stop_debian() {
   echo .
 }
 
-stop_debian() {
+reload_debian() {
   printf "Reloading hacker-blocking daemon: banjammer"
   start-stop-daemon -K -s 1 -o -q -x ${DAEMON}
   echo .

@@ -18,8 +18,4 @@
 
 set -e
 
-case "$1" in
-purge )
-  update-rc.d disorder remove > /dev/null
-  ;;
-esac
+update-rc.d disorder remove > /dev/null

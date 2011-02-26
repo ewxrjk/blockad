@@ -18,8 +18,4 @@
 
 set -e
 
-case "$1" in
-upgrade )
-  invoke-rc.d banjammer stop
-  ;;
-esac
+invoke-rc.d banjammer stop

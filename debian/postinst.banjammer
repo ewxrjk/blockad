@@ -18,15 +18,5 @@
 
 set -e
 
-case "$1" in
-configure )
-  update-rc.d banjammer defaults 16 84 > /dev/null
-  invoke-rc.d banjammer restart
-  ;;
-abort-upgrade )
-  invoke-rc.d banjammer restart
-  ;;
-reconfigure )
-  invoke-rc.d banjammer reload
-  ;;
-esac
+update-rc.d banjammer defaults 16 84 > /dev/null
+invoke-rc.d banjammer restart
