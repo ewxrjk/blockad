@@ -27,6 +27,8 @@ public:
   public:
     SyntaxError(const ConfFile *cf,
                 const std::string &s): Error(format(cf, s)) {}
+    SyntaxError(const ConfFile *cf,
+                const std::runtime_error &e): Error(format(cf, e.what())) {}
   private:
     static std::string format(const ConfFile *cf,
                               const std::string &s);
@@ -52,6 +54,7 @@ private:
   int lineno;
 
   void parse();
+  void parseLine(const std::string &line);
   size_t splitLine(const std::string &line,
                    std::vector<std::string> &bits);
   size_t parseString(const std::string &line,
