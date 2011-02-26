@@ -120,7 +120,7 @@ void ConfFile::parseLine(const std::string &line) {
     long count = strtol(bits[1].c_str(), &end, 10);
     if(errno)
       throw SyntaxError(this, std::string("invalid count for 'rate': ") + strerror(errno));
-    if(end == bits[1].c_str() || count < 1 || count > UINT_MAX)
+    if(end == bits[1].c_str() || count < 1 || (unsigned long)count > UINT_MAX)
       throw SyntaxError(this, "invalid count for 'rate'");
     rate_max = count;
 

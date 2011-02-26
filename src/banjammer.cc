@@ -77,7 +77,7 @@ private:
       time(&now);
       // Strip off too-old detection times
       while(ad.times.size()
-            && ad.times.front() < now - config->rate_interval)
+            && ad.times.front() < now - (time_t)config->rate_interval)
         ad.times.pop_front();
       // Add the latest detection time
       ad.times.push_back(now);
