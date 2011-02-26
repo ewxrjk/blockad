@@ -1,7 +1,7 @@
 #include <config.h>
 #include "StdioFile.h"
+#include "IOError.h"
 #include <cerrno>
-#include <cstring>
 
 // StdioFile ------------------------------------------------------------------
 
@@ -53,14 +53,6 @@ bool StdioFile::readline(std::string &line) {
     line += c;
   }
   return !!line.size();
-}
-
-// StdioFile::IOError ---------------------------------------------------------
-
-StdioFile::IOError::IOError(const std::string &what,
-                            const std::string &path,
-                            int errno_value):
-  std::runtime_error(what + " " + path + ": " + strerror(errno_value)) {
 }
 
 /*

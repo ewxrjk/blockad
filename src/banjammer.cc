@@ -4,13 +4,16 @@
 #include "Address.h"
 #include "Regex.h"
 #include "log.h"
+#include "utils.h"
 #include <sys/select.h>
 #include <cerrno>
 #include <cstdlib>
+#include <csignal>
 #include <map>
 #include <deque>
 
-ConfFile *config;
+static int signal_pipe[2];
+static ConfFile *config;
 
 struct AddressData {
   std::deque<time_t> times;
@@ -94,6 +97,14 @@ private:
 
 std::map<Address,AddressData> BanWatcher::addressData;
 
+extern "C" {
+  static void sighup_handler(int sig) {
+    int save_errno = errno;
+    write(signal_pipe[1], &sig, 1);
+    errno = save_errno;
+  }
+};
+
 int main(int argc, char **argv) {
   int n;
   bool background = false;              // TODO should be true
@@ -129,22 +140,56 @@ int main(int argc, char **argv) {
     // Read configuration
     config = new ConfFile(conffile);
     info("started");
-    // TODO catch SIGHUP
+    // Create the signal notificaiton pipe
+    if(pipe(signal_pipe) < 0) {
+      error("pipe: %s", strerror(errno));
+      exit(-1);
+    }
+    nonblock(signal_pipe[0]);
+    nonblock(signal_pipe[1]);
+    // Block SIGHUP
+    sigset_t sighup_mask;
+    sigemptyset(&sighup_mask);
+    sigaddset(&sighup_mask, SIGHUP);
+    if(sigprocmask(SIG_BLOCK, &sighup_mask, NULL) < 0) {
+      error("sigprocmask: %s", strerror(errno));
+      exit(-1);
+    }
+    // Install a SIGHUP handler
+    struct sigaction sa;
+    memset(&sa, 0, sizeof sa);
+    sa.sa_handler = sighup_handler;
+    if(sigaction(SIGHUP, &sa, NULL) < 0) {
+      error("sigaction: %s", strerror(errno));
+      exit(-1);
+    }
     for(;;) {
       std::vector<BanWatcher *> watchers;
-      for(size_t i = 0; i < config->files.size(); ++i)
-        watchers.push_back(new BanWatcher(config->files[i]));
+      for(size_t i = 0; i < config->files.size(); ++i) {
+        watchers.push_back(new BanWatcher(config->files[i]));\
+        nonblock(watchers[i]->pollfd());
+      }
       for(;;) {
-        int maxfd = -1;
+        int maxfd;
         fd_set fds;
         FD_ZERO(&fds);
+        FD_SET(signal_pipe[0], &fds);
+        maxfd = signal_pipe[0];
         for(size_t i = 0; i < watchers.size(); ++i) {
           const int fd = watchers[i]->pollfd();
           FD_SET(fd, &fds);
           if(fd > maxfd)
             maxfd = fd;
         }
+        if(sigprocmask(SIG_UNBLOCK, &sighup_mask, NULL) < 0) {
+          error("sigprocmask: %s", strerror(errno));
+          exit(-1);
+        }
         n = select(maxfd + 1, &fds, NULL, NULL, NULL);
+        if(sigprocmask(SIG_BLOCK, &sighup_mask, NULL) < 0) {
+          error("sigprocmask: %s", strerror(errno));
+          exit(-1);
+        }
         if(n < 0) {
           if(errno == EINTR)
             continue;
@@ -156,11 +201,23 @@ int main(int argc, char **argv) {
           if(FD_ISSET(fd, &fds))
             watchers[i]->work();
         }
-        // TODO exit loop on SIGHUP
+        if(FD_ISSET(signal_pipe[0], &fds)) {
+          char drain[1024];
+          while(read(signal_pipe[0], drain, sizeof drain) > 0)
+            ;
+          break;
+        }
       }
       // TODO actually we should transfer re-usable watchers to new array
       for(size_t i = 0; i < watchers.size(); ++i)
         delete watchers[i];
+      try {
+        ConfFile *newConfig = new ConfFile(conffile);
+        delete config;
+        config = newConfig;
+      } catch(std::runtime_error &e) {
+        error("%s", e.what());
+      }
     }
   } catch(std::runtime_error &e) {
     error("%s", e.what());

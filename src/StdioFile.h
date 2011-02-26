@@ -2,7 +2,6 @@
 #define STDIOFILE_H
 
 #include <string>
-#include <stdexcept>
 #include <cstdio>
 
 // Wrapper for FILE *
@@ -26,13 +25,6 @@ public:
   int readc();                          // return EOF or char
   bool readline(std::string &line);     // return true if a line, false at EOF
   
-  // Thrown if any IO error occurs
-  class IOError: public std::runtime_error {
-  public:
-    IOError(const std::string &what,
-            const std::string &path,
-            int errno_value);
-  };
 private:
   std::string path;
   FILE *fp;
