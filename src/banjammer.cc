@@ -19,6 +19,7 @@
 #include "ConfFile.h"
 #include "Address.h"
 #include "Regex.h"
+#include "Ban.h"
 #include "log.h"
 #include "utils.h"
 #include <sys/select.h>
@@ -92,22 +93,7 @@ private:
   // Ban an address
   void banAddress(const Address &a) {
     info("banning %s", a.asString().c_str());
-    // Synthesize the firewall command.  The details differ depending on
-    // address family.  (And for platform...)
-    std::string command;
-#if __linux__
-    if(a.is4())
-      command = "iptables -I INPUT -j REJECT -s " + a.as4();
-    else
-      command = "ip6tables -I INPUT -j REJECT -s " + a.as6();
-#else
-# error Unsupported operating system
-#endif
-    debug("command: %s", command.c_str());
-    int rc = system(command.c_str());
-    if(rc)
-      error("ban command exited %#x: %s", rc, command.c_str());
-    // TODO we should capture iptables' stderr and report that
+    Ban(a);
   }
 };
 
