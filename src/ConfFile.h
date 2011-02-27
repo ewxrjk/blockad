@@ -29,7 +29,7 @@
 
 class ConfFile {
 public:
-  ConfFile();
+  // Read the config file
   ConfFile(const std::string &path);
 
   // Base class for configuration file errors
@@ -50,6 +50,7 @@ public:
                               const std::string &s);
   };
 
+  // A pattern to match
   struct Match {
     Match(const Regex &r, int c): regex(r), capture(c) {}
     Regex regex;                        // regex to match
@@ -63,11 +64,12 @@ public:
   unsigned rate_max;                    // maximum occurences per interval
   unsigned rate_interval;               // interval size in seconds
 
+  // Default settings
   static const int rate_max_default = 5;
   static const int rate_interval_default = 60 * 60;
 private:
-  std::string path;
-  int lineno;
+  std::string path;                     // file that's being read
+  int lineno;                           // current line number
 
   void parse();
   void parseLine(const std::string &line);

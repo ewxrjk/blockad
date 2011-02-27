@@ -19,6 +19,8 @@
 
 #include "Address.h"
 
+// Ban an address.  Use Ban(), which will expand to the platform-specific
+// version.
 bool BanLinux(const Address &address);
 
 #if __linux__

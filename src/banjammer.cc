@@ -29,17 +29,25 @@
 #include <map>
 #include <deque>
 
+// Pipe used to communicate from signal handlers to mainline code
 static int signal_pipe[2];
+
+// The currently active configuration
 static ConfFile *config;
 
+// Data about one address
 struct AddressData {
+  // Times that this address was detected
   std::deque<time_t> times;
+
+  // True if this address has been banned
   bool banned;
 
   AddressData(): banned(false) {}
 };
 
 
+// A logfile watcher that knows how to ban things
 class BanWatcher: public Watcher {
 public:
   BanWatcher(const std::string &path): Watcher(path) {}
@@ -60,6 +68,7 @@ public:
   }
 
 private:
+  // Global store of data about addresses that have been detected
   static std::map<Address,AddressData> addressData;
 
   // Called when an address is detected
@@ -73,6 +82,7 @@ private:
       }
     // Find (or create) the data for this address
     AddressData &ad = addressData[a];
+    // Only consider addresses that have not yet been banned
     if(!ad.banned) {
       time_t now;
       time(&now);
@@ -104,6 +114,7 @@ private:
 
 std::map<Address,AddressData> BanWatcher::addressData;
 
+// Signal handler for SIGHUP
 extern "C" {
   static void sighup_handler(int sig) {
     int save_errno = errno;
@@ -112,6 +123,7 @@ extern "C" {
   }
 }
 
+// Update the watchers array, re-use existing watchers if possible.
 static void updateWatchers(const ConfFile *oldConfig,
                            const ConfFile *newConfig,
                            std::vector<Watcher *> &oldWatchers) {
@@ -147,6 +159,7 @@ int main(int argc, char **argv) {
   const char *conffile = "/etc/banjammer.conf";
   const char *pidfile = NULL;
 
+  // Parse command-line options
   while((n = getopt(argc, argv, "dfc:P:")) >= 0) {
     switch(n) {
     case 'd':
@@ -200,6 +213,8 @@ int main(int argc, char **argv) {
     nonblock(signal_pipe[0]);
     nonblock(signal_pipe[1]);
     // Block SIGHUP
+    // The signal is blocked except when waiting in select(), so that signal
+    // delivery cannot interrupt any syscalls.
     sigset_t sighup_mask;
     sigemptyset(&sighup_mask);
     sigaddset(&sighup_mask, SIGHUP);
@@ -219,8 +234,11 @@ int main(int argc, char **argv) {
     std::vector<Watcher *> watchers;
     // Create the initial watchers
     updateWatchers(NULL, config, watchers);
+    // Outer loop, repeats once per configuration change
     for(;;) {
+      // Inner loop, repeats once per event of any kind
       for(;;) {
+        // Construct FD set
         int maxfd;
         fd_set fds;
         FD_ZERO(&fds);
@@ -232,6 +250,7 @@ int main(int argc, char **argv) {
           if(fd > maxfd)
             maxfd = fd;
         }
+        // Unblock signal while waiting
         if(sigprocmask(SIG_UNBLOCK, &sighup_mask, NULL) < 0) {
           error("sigprocmask: %s", strerror(errno));
           exit(-1);
@@ -247,14 +266,16 @@ int main(int argc, char **argv) {
           error("select: %s", strerror(errno));
           exit(-1);
         }
+        // Check logfiles for updates
         for(size_t i = 0; i < watchers.size(); ++i) {
           const int fd = watchers[i]->pollfd();
           if(FD_ISSET(fd, &fds))
             watchers[i]->work();
         }
+        // Check for signals
         if(FD_ISSET(signal_pipe[0], &fds)) {
-          char drain[1024];
-          while(read(signal_pipe[0], drain, sizeof drain) > 0)
+          char drain[4];
+          read(signal_pipe[0], drain, sizeof drain);
             ;
           break;
         }

@@ -21,10 +21,14 @@
 #include <vector>
 #include <csignal>
 
+// Make FD nonblocking
 void nonblock(int fd);
+
+// Execute a command and return its wait status.  Logs its output if it failed.
 int execute(const std::vector<std::string> &command);
 int execute(const char *const *argv);
 
+// Process's original signal mask, so that it can be restored for subprocesses.
 extern sigset_t original_sigmask;
 
 #endif /* UTILS_H */

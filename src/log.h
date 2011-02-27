@@ -17,19 +17,25 @@
 #ifndef LOG_H
 #define LOG_H
 
+// Log a debug message, if debugging is enabled
 #define debug(...) do {                         \
   if(debugging)                                 \
     debug_(__VA_ARGS__);                        \
 } while(0)
   
 
+// Implementation of debug()
 void debug_(const char *format, ...);
+
+// Log a message at various severities
 void info(const char *format, ...);
 void error(const char *format, ...);
 void warn(const char *format, ...);
 
+// Switch from stderr logging to syslog logging
 void useSyslog(const char *ident);
 
+// Set to enable debugging
 extern bool debugging;
 
 #endif /* LOG_H */

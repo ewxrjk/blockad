@@ -25,10 +25,6 @@
 
 // ConfFile -------------------------------------------------------------------
 
-ConfFile::ConfFile(): rate_max(rate_max_default),
-                      rate_interval(rate_interval_default) {
-}
-
 ConfFile::ConfFile(const std::string &path_): 
   rate_max(rate_max_default),
   rate_interval(rate_interval_default),
