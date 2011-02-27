@@ -43,4 +43,4 @@ echo six >&3
 sleep 1                         # allow watchfile to flush buffers
 kill ${pid}
 
-diff -u watch-expect watch-results
+diff -u ${srcdir}/watch-expect watch-results

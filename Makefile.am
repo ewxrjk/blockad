@@ -18,4 +18,5 @@ SUBDIRS=src tests
 EXTRA_DIST=examples/banjammer.conf examples/banjammer.init .gitignore	\
 debian/changelog debian/conffiles.banjammer debian/control		\
 debian/copyright debian/rules debian/postinst.banjammer			\
-debian/prerm.banjammer debian/postrm.banjammer
+debian/prerm.banjammer debian/postrm.banjammer dist
+

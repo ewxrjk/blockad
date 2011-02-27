@@ -1,0 +1,38 @@
+#! /bin/bash
+set -e
+
+rm -f *.deb *.tar.gz
+make
+make distcheck
+VERSION=$(awk '/^VERSION = / { print $3 }' < Makefile)
+PACKAGE=$(awk '/^PACKAGE = / { print $3 }' < Makefile)
+tardir=${PACKAGE}-${VERSION}
+tarball=${PACKAGE}-${VERSION}.tar.gz
+
+build() {
+  local host=$1
+  local arch=$2
+  echo
+  echo ------------------------------------------------------------------------
+  echo Building on $host for $arch
+  echo 
+  scp ${tarball} $host:_builds/${tarball}
+  ssh $host "cd _builds && tar xf ${tarball}"
+  ssh $host "cd _builds/${tardir} && fakeroot debian/rules binary"
+  scp $host:_builds/${PACKAGE}_${VERSION}_${arch}.deb .
+}
+
+
+build araminta amd64
+build sandestin i386
+
+echo
+echo ------------------------------------------------------------------------
+echo
+
+ls -l *.tar.gz
+ls -l *.deb
+
+echo
+
+echo cp \*.deb /var/lib/debarchiver/incoming/unstable/

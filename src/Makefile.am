@@ -22,3 +22,4 @@ Watcher.cc Address.h ConfFile.h Regex.h StdioFile.h Watcher.h log.h	\
 log.cc IOError.cc IOError.h nonblock.cc utils.h Ban.h Linux.cc
 banjammer_SOURCES=banjammer.cc
 LDADD=libutils.a
+EXTRA_DIST=${man_MANS}

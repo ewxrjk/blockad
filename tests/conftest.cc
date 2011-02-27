@@ -17,9 +17,13 @@
 #include <config.h>
 #include "ConfFile.h"
 #include <cassert>
+#include <cstdlib>
 
 int main(void) {
-  ConfFile testconf1("testconf1");
+  std::string dir = ".";
+  if(getenv("srcdir"))
+    dir = getenv("srcdir");
+  ConfFile testconf1(dir + "/" + "testconf1");
   assert(testconf1.files.size() == 4);
   assert(testconf1.files[0] == "file1");
   assert(testconf1.files[1] == "file 2");
