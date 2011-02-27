@@ -61,6 +61,13 @@ void error(const char *format, ...) {
   va_end(ap);
 }
 
+void warn(const char *format, ...) {
+  va_list ap;
+  va_start(ap, format);
+  vlog(LOG_WARNING, format, ap);
+  va_end(ap);
+}
+
 void useSyslog(const char *ident) {
   openlog(ident, LOG_PID, LOG_DAEMON);
   vlog = vsyslog;
