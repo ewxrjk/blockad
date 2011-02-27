@@ -267,6 +267,7 @@ int main(int argc, char **argv) {
       // Use the new config hereafter
       delete config;
       config = newConfig;
+      info("reloaded configuration");
     }
   } catch(std::runtime_error &e) {
     error("%s", e.what());
