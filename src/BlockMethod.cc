@@ -2,18 +2,18 @@
 #include "BlockMethod.h"
 #include "ConfFile.h"
 
-BlockMethod::BlockMethod(const char *name) {
+BlockMethodType::BlockMethodType(const char *name) {
   if(!registry)
-    registry = new std::map<std::string,BlockMethod *>();
+    registry = new std::map<std::string,const BlockMethodType *>();
   (*registry)[name] = this;
 }
 
-BlockMethod::~BlockMethod() {
+BlockMethodType::~BlockMethodType() {
 }
 
-BlockMethod *BlockMethod::find(const std::string &name) {
+const BlockMethodType *BlockMethodType::find(const std::string &name) {
   if(registry) {
-    std::map<std::string,BlockMethod *>::const_iterator it;
+    std::map<std::string,const BlockMethodType *>::const_iterator it;
     it = registry->find(name);
     if(it != registry->end())
       return it->second;
@@ -21,13 +21,17 @@ BlockMethod *BlockMethod::find(const std::string &name) {
   return NULL;
 }
 
-void BlockMethod::parameterize(ConfFile *cf,
-                               const std::vector<std::string> &bits) {
+BlockMethod *BlockMethodType::create(ConfFile *cf,
+                                     const std::vector<std::string> &bits) const {
   if(bits.size() > 2)
     throw ConfFile::SyntaxError(cf, "excess arguments to 'block'");
+  return create();
 }
 
-std::map<std::string,BlockMethod *> *BlockMethod::registry;
+std::map<std::string,const BlockMethodType *> *BlockMethodType::registry;
+
+BlockMethod::~BlockMethod() {
+}
 
 /*
 Local Variables:

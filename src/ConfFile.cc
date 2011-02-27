@@ -29,7 +29,7 @@
 ConfFile::ConfFile(const std::string &path_): 
   rate_max(rate_max_default),
   rate_interval(rate_interval_default),
-  block(BlockMethod::find(block_default)),
+  block(BlockMethodType::find(block_default)->create()),
   path(path_) {
   parse();
 }
@@ -149,11 +149,10 @@ void ConfFile::parseLine(const std::string &line) {
 
     if(bits.size() < 2)
       throw SyntaxError(this, "missing argument to 'block'");
-    if(!BlockMethod::find(bits[1]))
+    const BlockMethodType *type = BlockMethodType::find(bits[1]);
+    if(!type)
       throw SyntaxError(this, "unknown block method '" + bits[1] + "'");
-    BlockMethod *newBlock = BlockMethod::find(bits[1]);
-    newBlock->parameterize(this, bits);
-    block = newBlock;
+    block = type->create(this, bits);
   } else
     throw SyntaxError(this, "unrecognized command '" + bits[0] + "'");
 }

@@ -7,35 +7,41 @@
 
 class Address;
 class ConfFile;
+class BlockMethod;
 
-// Base class for methods of blocking hosts
+// Base class for types methods of blocking hosts
 //
 // Each block method should be defined as a subclass, of which exactly one
 // (static) instance should be created.  BlockMethod::BlockMethod() will
 // register it for retrieval with BlockMethod::find();
-class BlockMethod {
+class BlockMethodType {
 public:
   // Register block method
-  BlockMethod(const char *name);
-  virtual ~BlockMethod();
+  BlockMethodType(const char *name);
+  virtual ~BlockMethodType();
 
   // Find a block method by name
-  static BlockMethod *find(const std::string &name);
+  static const BlockMethodType *find(const std::string &name);
 
-  // Apply configuration parameters
+  // Apply configuration parameters and create a block method
   //
   // bits is the _whole_ directive, i.e. including 'block <name>'.
-  //
-  // The default implementation reports an error if any extra parameters are
-  // specified.
-  virtual void parameterize(ConfFile *cf,
-                            const std::vector<std::string> &bits);
+  virtual BlockMethod *create(ConfFile *cf,
+                              const std::vector<std::string> &bits) const;
+
+  virtual BlockMethod *create() const = 0;
+
+private:
+  static std::map<std::string,const BlockMethodType *> *registry;
+};
+
+// Parameterized blockers
+class BlockMethod {
+public:
+  virtual ~BlockMethod();
 
   // Block an address
   virtual bool block(const Address &a) = 0;
-
-private:
-  static std::map<std::string,BlockMethod *> *registry;
 };
 
 #endif /* BLOCKMETHOD_H */

@@ -21,8 +21,6 @@
 
 class BlockIptables: public BlockMethod {
 public:
-  BlockIptables(): BlockMethod("iptables") {}
-
   bool block(const Address &a) {
     std::vector<std::string> command;
 
@@ -43,7 +41,16 @@ public:
   }
 };
 
-static const BlockIptables block_iptables;
+class BlockIptablesType: public BlockMethodType {
+public:
+  BlockIptablesType(): BlockMethodType("iptables") {}
+  
+  BlockMethod *create() const {
+    return new BlockIptables();
+  }
+};
+
+static const BlockIptablesType block_iptables;
 
 /*
 Local Variables:

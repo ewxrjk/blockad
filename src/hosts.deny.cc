@@ -25,17 +25,7 @@
 
 class BlockHostsDeny: public BlockMethod {
 public:
-  BlockHostsDeny(): BlockMethod("hosts.deny") {}
-
-  void parameterize(ConfFile *cf,
-                    const std::vector<std::string> &bits) {
-    if(bits.size() > 3)
-      throw ConfFile::SyntaxError(cf, "excess arguments to 'block hosts.deny'");
-    if(bits.size() > 2)
-      path = bits[2];
-    else
-      path = path_default;
-  }
+  BlockHostsDeny(const std::string &path_): path(path_) {}
 
   bool block(const Address &a) {
     try {
@@ -54,12 +44,33 @@ public:
 
 private:
   std::string path;
+};
+
+class BlockHostsDenyType: public BlockMethodType {
+public:
+  BlockHostsDenyType(): BlockMethodType("hosts.deny") {}
+
+  BlockMethod *create(ConfFile *cf,
+                      const std::vector<std::string> &bits) const {
+    if(bits.size() > 3)
+      throw ConfFile::SyntaxError(cf, "excess arguments to 'block hosts.deny'");
+    if(bits.size() > 2)
+      return new BlockHostsDeny(bits[2]);
+    else
+      return create();
+  }
+
+  BlockMethod *create() const {
+    return new BlockHostsDeny(path_default);
+  }
+
+private:
   static const char path_default[];
 };
 
-const char BlockHostsDeny::path_default[] = "/etc/hosts.deny";
+const char BlockHostsDenyType::path_default[] = "/etc/hosts.deny";
 
-static const BlockHostsDeny block_hosts_deny;
+static const BlockHostsDenyType block_hosts_deny;
 
 /*
 Local Variables:
