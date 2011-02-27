@@ -16,6 +16,7 @@
 //
 #include <config.h>
 #include "BlockMethod.h"
+#include "ConfFile.h"
 #include "Address.h"
 #include "StdioFile.h"
 #include "IOError.h"
@@ -25,9 +26,20 @@
 class BlockHostsDeny: public BlockMethod {
 public:
   BlockHostsDeny(): BlockMethod("hosts.deny") {}
-  bool block(const Address &a) const {
+
+  void parameterize(ConfFile *cf,
+                    const std::vector<std::string> &bits) {
+    if(bits.size() > 3)
+      throw ConfFile::SyntaxError(cf, "excess arguments to 'block hosts.deny'");
+    if(bits.size() > 2)
+      path = bits[2];
+    else
+      path = path_default;
+  }
+
+  bool block(const Address &a) {
     try {
-      StdioFile output("/etc/hosts.deny", "a");
+      StdioFile output(path, "a");
       if(a.is4())
         output.printf("ALL: %s\n", a.as4().c_str());
       else
@@ -39,7 +51,13 @@ public:
     }
     return true;
   }
+
+private:
+  std::string path;
+  static const char path_default[];
 };
+
+const char BlockHostsDeny::path_default[] = "/etc/hosts.deny";
 
 static const BlockHostsDeny block_hosts_deny;
 

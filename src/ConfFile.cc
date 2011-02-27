@@ -149,11 +149,11 @@ void ConfFile::parseLine(const std::string &line) {
 
     if(bits.size() < 2)
       throw SyntaxError(this, "missing argument to 'block'");
-    else if(bits.size() > 2)
-      throw SyntaxError(this, "excess arguments to 'block'");
     if(!BlockMethod::find(bits[1]))
       throw SyntaxError(this, "unknown block method '" + bits[1] + "'");
-    block = BlockMethod::find(bits[1]);
+    BlockMethod *newBlock = BlockMethod::find(bits[1]);
+    newBlock->parameterize(this, bits);
+    block = newBlock;
   } else
     throw SyntaxError(this, "unrecognized command '" + bits[0] + "'");
 }

@@ -22,7 +22,8 @@
 class BlockIptables: public BlockMethod {
 public:
   BlockIptables(): BlockMethod("iptables") {}
-  bool block(const Address &a) const {
+
+  bool block(const Address &a) {
     std::vector<std::string> command;
 
     if(a.is4())

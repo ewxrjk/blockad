@@ -65,7 +65,7 @@ public:
   std::vector<AddressPattern> exempted; // never ban these addresses
   unsigned rate_max;                    // maximum occurences per interval
   unsigned rate_interval;               // interval size in seconds
-  const BlockMethod *block;             // block method
+  BlockMethod *block;                   // block method
 
   // Default settings
   static const int rate_max_default = 5;
