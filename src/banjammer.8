@@ -56,6 +56,22 @@ The default rate is \fB5/hour\fR.
 Never ban \fIADDRESS\fR, or if a mask is specified, any address
 in the network \fIADDRESS\fR\fB/\fIMASK\fR.
 Use this to ensure you don't accidentally lock yourself out.
+.TP
+.B block \fIMETHOD\fR
+Selects the block method to use.  Valid block methods are:
+.RS
+.TP
+.B iptables
+Add a firewall rule to block the offending host.
+The rule will be inserted at the very start of the \fBINPUT\fR chain.
+This is the default.
+.TP
+.B hosts.deny
+Append a line to \fI/etc/hosts.deny\fR to block the offending host.
+.RE
+.PP
+All directives can be used more than once, though in the case of
+\fBrate\fR and \fBblock\fR, the last one will always win.
 .PP
 Arguments containing spaces must be quoted with double quote (in which
 C-style backslash escapes may be used) or single quotes (in which
@@ -74,9 +90,18 @@ will be used.
 Configuration file.
 .SH NOTES
 If you restart the daemon then it will forget its record of past
-break-in attempts.
+break-in attempts, giving any unblocked hosts a "fresh start".
 This does not apply to re-reading the configuration file.
+.PP
+If you reboot the computer then, with the \fBiptables\fR block method,
+the list of blocked hosts is also forgotten.  With the
+\fBhosts.deny\fR block method, however, the list of blocked hosts will
+persist.
+.PP
+The \fBhosts.deny\fR method appends to \fI/etc/hosts.deny\fR without
+any attempt at locking.
 .SH "SEE ALSO"
+.BR hosts.deny (5),
 .BR iptables (8),
 .BR ip6tables (8),
 .BR sshd (8)
