@@ -19,6 +19,7 @@
 #include <sys/inotify.h>
 #include <cerrno>
 #include <cstdio>
+#include "log.h"
 
 Watcher::Watcher(const std::string &path_arg): path(path_arg),
                                                base(getBaseName(path)),
@@ -78,7 +79,13 @@ void Watcher::closeFile() {
     if(file_wd >= 0) {
       if(inotify_rm_watch(ifd, file_wd) < 0) {
         file_wd = -1;
-        throw SystemError("inotify_rm_watch for " + path, errno);
+        // On 2.6.26 we get a spurious EINVAL removing a wd sometimes.  It
+        // doesn't happen on 2.6.32.  We ignore it and issue a warning instead.
+        // There's not much else that can be done.
+        if(errno == EINVAL)
+          warn("inotify_rm_watch: %s", strerror(errno));
+        else
+          throw SystemError("inotify_rm_watch for " + path, errno);
       }
       file_wd = -1;
     }
