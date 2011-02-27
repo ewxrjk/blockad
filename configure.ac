@@ -31,7 +31,6 @@ AC_PROG_RANLIB
 # Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
 
 # Checks for library functions.
 AC_CHECK_FUNCS([strerror])
