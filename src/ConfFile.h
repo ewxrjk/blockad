@@ -27,6 +27,8 @@
 #include "Regex.h"
 #include "Address.h"
 
+class BlockMethod;
+
 class ConfFile {
 public:
   // Read the config file
@@ -63,10 +65,12 @@ public:
   std::vector<AddressPattern> exempted; // never ban these addresses
   unsigned rate_max;                    // maximum occurences per interval
   unsigned rate_interval;               // interval size in seconds
+  const BlockMethod *block;             // block method
 
   // Default settings
   static const int rate_max_default = 5;
   static const int rate_interval_default = 60 * 60;
+  static const char block_default[];
 private:
   std::string path;                     // file that's being read
   int lineno;                           // current line number

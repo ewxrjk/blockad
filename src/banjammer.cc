@@ -19,7 +19,7 @@
 #include "ConfFile.h"
 #include "Address.h"
 #include "Regex.h"
-#include "Ban.h"
+#include "BlockMethod.h"
 #include "log.h"
 #include "utils.h"
 #include <sys/select.h>
@@ -103,7 +103,7 @@ private:
   // Ban an address
   bool banAddress(const Address &a) {
     info("banning %s", a.asString().c_str());
-    if(Ban(a))
+    if(config->block->block(a))
       return true;
     else {
       error("failed to ban %s", a.asString().c_str());
