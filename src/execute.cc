@@ -56,16 +56,18 @@ int execute(const char *const *argv) {
     // Create subprocess
     switch((pid = fork())) {
     case 0:
-      // Restore signal settings
+      // Plumb in pipe
       if(dup2(p[1], 1) < 0
          || dup2(p[1], 2) < 0
          || close(p[1]) < 0
          || close(p[0]) < 0)
         _Exit(-1);
+      // Restore signal mask
       if(sigprocmask(SIG_SETMASK, &original_sigmask, NULL) < 0) {
         fprintf(stderr, "sigprocmask: %s\n", strerror(errno));
         _Exit(-1);
       }
+      // Execute the program
       execvp(argv[0], (char *const *)argv);
       fprintf(stderr, "executing %s: %s\n", argv[0], strerror(errno));
       _Exit(-1);
