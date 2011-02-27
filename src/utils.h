@@ -17,7 +17,15 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <string>
+#include <vector>
+#include <csignal>
+
 void nonblock(int fd);
+int execute(const std::vector<std::string> &command);
+int execute(const char *const *argv);
+
+extern sigset_t original_sigmask;
 
 #endif /* UTILS_H */
 

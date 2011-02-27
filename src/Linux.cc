@@ -18,23 +18,25 @@
 
 #if __linux__
 #include "Ban.h"
-#include "log.h"
-#include <cstdlib>
+#include "utils.h"
 
 bool BanLinux(const Address &a) {
-  std::string command;
+  std::vector<std::string> command;
+
   if(a.is4())
-    command = "iptables -I INPUT -j REJECT -s " + a.as4();
+    command.push_back("iptables");
   else
-    command = "ip6tables -I INPUT -j REJECT -s " + a.as6();
-  debug("command: %s", command.c_str());
-  int rc = system(command.c_str());
-  if(rc) {
-    error("ban command exited %#x: %s", rc, command.c_str());
+    command.push_back("ip6tables");
+  command.push_back("-I");
+  command.push_back("INPUT");
+  command.push_back("-j");
+  command.push_back("REJECT");
+  command.push_back("-s");
+  command.push_back(a.asString());
+  if(execute(command))
     return false;
-    // TODO we should capture iptables' stderr and report that
-  }
-  return true;
+  else
+    return true;
 }
 
 #endif

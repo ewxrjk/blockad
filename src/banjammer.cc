@@ -84,16 +84,21 @@ private:
       ad.times.push_back(now);
       // See if the ban rate has been exceeded
       if(ad.times.size() > config->rate_max) {
-        banAddress(a);
-        ad.banned = true;
+        if(banAddress(a))
+          ad.banned = true;
       }
     }
   }
 
   // Ban an address
-  void banAddress(const Address &a) {
+  bool banAddress(const Address &a) {
     info("banning %s", a.asString().c_str());
-    Ban(a);
+    if(Ban(a))
+      return true;
+    else {
+      error("failed to ban %s", a.asString().c_str());
+      return false;
+    }
   }
 };
 
@@ -198,7 +203,7 @@ int main(int argc, char **argv) {
     sigset_t sighup_mask;
     sigemptyset(&sighup_mask);
     sigaddset(&sighup_mask, SIGHUP);
-    if(sigprocmask(SIG_BLOCK, &sighup_mask, NULL) < 0) {
+    if(sigprocmask(SIG_BLOCK, &sighup_mask, &original_sigmask) < 0) {
       error("sigprocmask: %s", strerror(errno));
       exit(-1);
     }
