@@ -18,4 +18,8 @@
 
 set -e
 
-update-rc.d banjammer remove > /dev/null
+case "$1" in
+purge )
+  update-rc.d banjammer remove > /dev/null
+  ;;
+esac

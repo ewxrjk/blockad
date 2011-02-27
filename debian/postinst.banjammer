@@ -19,4 +19,4 @@
 set -e
 
 update-rc.d banjammer defaults 16 84 > /dev/null
-invoke-rc.d banjammer restart
+invoke-rc.d banjammer start
