@@ -105,7 +105,7 @@ extern "C" {
     write(signal_pipe[1], &sig, 1);
     errno = save_errno;
   }
-};
+}
 
 static void updateWatchers(const ConfFile *oldConfig,
                            const ConfFile *newConfig,
