@@ -1,6 +1,6 @@
-banjammer (0.0.DEV) unstable; urgency=low
+banjammer (0.1) unstable; urgency=low
 
-  * Development branch.
+  * Release 0.1
 
- -- Richard Kettlewell <rjk@greenend.org.uk>  Sat, 26 Feb 2011 20:42:55 +0000
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sun, 27 Feb 2011 10:50:41 +0000
 
