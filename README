@@ -20,7 +20,7 @@ Installation
 See 'man banjammer' for documentation.
 
 There is an example config file in examples/banjammer.conf and an
-example init sscript in examples/banjammer.init.
+example init script in examples/banjammer.init.
 
 Licence
 =======
