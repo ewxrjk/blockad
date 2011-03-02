@@ -19,10 +19,10 @@ config.aux
 tests/watch-results
 tests/conftest
 tests/addrtest
-src/banjammer
+src/blockad
 debian/files
 debian/substvars.*
-debian/banjammer
+debian/blockad
 INSTALL
 *.tar.gz
 *.deb

@@ -18,4 +18,4 @@
 
 set -e
 
-invoke-rc.d banjammer stop
+invoke-rc.d blockad stop

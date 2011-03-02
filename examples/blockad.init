@@ -17,20 +17,20 @@
 #
 
 ### BEGIN INIT INFO
-# Provides:          banjammer
+# Provides:          blockad
 # Required-Start:    $remote_fs $syslog $time
 # Required-Stop:     $remote_fs $syslog $time
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Start and stop Banjammer
-# Description:       Banjammer detects and blocks persistent hacking attempts
+# Short-Description: Start and stop Blockad
+# Description:       Blockad detects and blocks persistent hacking attempts
 ### END INIT INFO
 
 set -e
 
 # What to run
-DAEMON=/usr/sbin/banjammer
-PIDFILE=/var/run/banjammer.pid
+DAEMON=/usr/sbin/blockad
+PIDFILE=/var/run/blockad.pid
 
 # Detect whether we are on a Debian system
 if test -e /sbin/start-stop-daemon; then
@@ -41,19 +41,19 @@ fi
 
 # Debian-specific start/stop runes
 start_debian() {
-  printf "Starting hacker-blocking daemon: banjammer"
+  printf "Starting hacker-blocking daemon: blockad"
   start-stop-daemon -S -q -x ${DAEMON}
   echo .
 }
 
 stop_debian() {
-  printf "Stopping hacker-blocking daemon: banjammer"
+  printf "Stopping hacker-blocking daemon: blockad"
   start-stop-daemon -K -o -q -x ${DAEMON}
   echo .
 }
 
 reload_debian() {
-  printf "Reloading hacker-blocking daemon: banjammer"
+  printf "Reloading hacker-blocking daemon: blockad"
   start-stop-daemon -K -s 1 -o -q -x ${DAEMON}
   echo .
 }
@@ -67,14 +67,14 @@ start_generic() {
       return
     fi
   fi
-  printf "Starting hacker-blocking daemon: banjammer"
+  printf "Starting hacker-blocking daemon: blockad"
   ${DAEMON} -P ${PIDFILE}
   echo .
 }
 
 stop_generic() {
   if [ -e ${PIDFILE} ]; then
-    printf "Stopping hacker-blocking daemon: banjammer"
+    printf "Stopping hacker-blocking daemon: blockad"
     read pid < ${PIDFILE}
     rm -f ${PIDFILE}
     kill ${pid}
@@ -86,7 +86,7 @@ stop_generic() {
 
 reload_generic() {
   if [ -e ${PIDFILE} ]; then
-    printf "Reloading hacker-blocking daemon: banjammer"
+    printf "Reloading hacker-blocking daemon: blockad"
     read pid < ${PIDFILE}
     kill -1 ${pid}
     echo .

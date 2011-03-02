@@ -15,12 +15,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 noinst_LIBRARIES=libutils.a
-sbin_PROGRAMS=banjammer
-man_MANS=banjammer.8
+sbin_PROGRAMS=blockad
+man_MANS=blockad.8
 libutils_a_SOURCES=Address.cc ConfFile.cc Regex.cc StdioFile.cc		\
 Watcher.cc Address.h ConfFile.h Regex.h StdioFile.h Watcher.h log.h	\
 log.cc IOError.cc IOError.h nonblock.cc utils.h execute.cc		\
 BlockMethod.h BlockMethod.cc
-banjammer_SOURCES=banjammer.cc iptables.cc hosts.deny.cc
+blockad_SOURCES=blockad.cc iptables.cc hosts.deny.cc
 LDADD=libutils.a
 EXTRA_DIST=${man_MANS}

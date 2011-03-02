@@ -1,11 +1,11 @@
-.TH banjammer 8
+.TH blockad 8
 .SH NAME
-banjammer \- block persistent hackers
+blockad \- block persistent hackers
 .SH SYNOPSIS
-.B banjammer
+.B blockad
 .RI [ OPTIONS ]
 .SH DESCRIPTION
-.B banjammer
+.B blockad
 reads your logfiles and when it detects persistent hacking attempts,
 blocks them using the kernel's firewall.
 .SH OPTIONS
@@ -16,13 +16,13 @@ Debug mode.
 .B -f
 Foreground mode.
 (By default
-.B banjammer
+.B blockad
 runs as a daemon.)
 .TP
 .B -c \fIPATH\fR
 Read configuration file.
 The default is
-.IR /etc/banjammer.conf .
+.IR /etc/blockad.conf .
 .TP
 .B -P \fIPATH\fR
 Write a pidfile.
@@ -88,7 +88,7 @@ If the configuration file now contains a syntax error, the old version
 will be used.
 .SH FILES
 .TP
-.I /etc/banjammer.conf
+.I /etc/blockad.conf
 Configuration file.
 .SH NOTES
 If you restart the daemon then it will forget its record of past

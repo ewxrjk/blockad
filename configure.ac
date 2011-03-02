@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 AC_PREREQ([2.61])
-AC_INIT([banjammer], [0.0.DEV], [rjk@greenend.org.uk])
+AC_INIT([blockad], [0.0.DEV], [rjk@greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
 AM_INIT_AUTOMAKE([1.10])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])

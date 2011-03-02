@@ -156,7 +156,7 @@ static void updateWatchers(const ConfFile *oldConfig,
 int main(int argc, char **argv) {
   int n;
   bool background = true;
-  const char *conffile = "/etc/banjammer.conf";
+  const char *conffile = "/etc/blockad.conf";
   const char *pidfile = NULL;
 
   // Parse command-line options

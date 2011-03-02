@@ -1,10 +1,10 @@
-Source: banjammer
+Source: blockad
 Maintainer: Richard Kettlewell <rjk@greenend.org.uk>
 Section: admin
 Priority: extra
 Standards-Version: 3.8.1.0
 
-Package: banjammer
+Package: blockad
 Architecture: any
 Section: admin
 Priority: extra
