@@ -27,16 +27,23 @@ sleep 1                         # allow watchfile to start up
 
 echo one > WatchMe
 echo two >> WatchMe
+sleep 1
 
 mv WatchMe DontWatchMe
+sleep 1
+
 echo three >> DontWatchMe
 
 echo four > WatchMe
 echo five >> WatchMe
+sleep 1
+
 mv DontWatchMe WatchMe
+sleep 1
 
 exec 3>>WatchMe
 rm -f WatchMe
+sleep 1
 
 echo six >&3
 
