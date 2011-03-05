@@ -22,6 +22,9 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 AC_CONFIG_SRCDIR([src/Watcher.h])
 AC_CONFIG_HEADER([config.h])
 
+# Identify platform
+AC_CANONICAL_HOST
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_RANLIB
@@ -44,6 +47,8 @@ AC_CHECK_FUNCS([strerror])
 # Enable GCC warnings
 if test "x$GXX" = xyes; then
   CXX="$CXX -Wall -W -Werror -Wpointer-arith -Wwrite-strings"
+  AS_CASE([$host],
+    [*-apple-darwin*], [CXX="$CXX -Wno-deprecated-declarations"])
 fi
 
 AC_OUTPUT([Makefile src/Makefile tests/Makefile])
