@@ -118,7 +118,8 @@ std::map<Address,AddressData> BanWatcher::addressData;
 extern "C" {
   static void sighup_handler(int sig) {
     int save_errno = errno;
-    write(signal_pipe[1], &sig, 1);
+    int rc = write(signal_pipe[1], &sig, 1);
+    (void) rc;
     errno = save_errno;
   }
 }
@@ -275,8 +276,8 @@ int main(int argc, char **argv) {
         // Check for signals
         if(FD_ISSET(signal_pipe[0], &fds)) {
           char drain[4];
-          read(signal_pipe[0], drain, sizeof drain);
-            ;
+          int rc = read(signal_pipe[0], drain, sizeof drain);
+          (void)rc;
           break;
         }
       }
