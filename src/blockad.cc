@@ -18,7 +18,7 @@
 #include "Watcher.h"
 #include "ConfFile.h"
 #include "Address.h"
-#include "Regex.h"
+#include "Regex_.h"
 #include "BlockMethod.h"
 #include "timeval.h"
 #include "log.h"

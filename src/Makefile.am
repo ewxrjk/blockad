@@ -18,7 +18,7 @@ noinst_LIBRARIES=libutils.a
 sbin_PROGRAMS=blockad
 man_MANS=blockad.8
 libutils_a_SOURCES=Address.cc ConfFile.cc Regex.cc StdioFile.cc		\
-Watcher.cc Address.h ConfFile.h Regex.h StdioFile.h Watcher.h log.h	\
+Watcher.cc Address.h ConfFile.h Regex_.h StdioFile.h Watcher.h log.h	\
 log.cc IOError.cc IOError.h nonblock.cc utils.h execute.cc		\
 BlockMethod.h BlockMethod.cc WatcherImplementation.h			\
 WatcherImplementation.cc InotifyWatcher.cc InotifyWatcher.h		\
