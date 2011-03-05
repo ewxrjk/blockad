@@ -20,9 +20,9 @@ man_MANS=blockad.8
 libutils_a_SOURCES=Address.cc ConfFile.cc Regex.cc StdioFile.cc		\
 Watcher.cc Address.h ConfFile.h Regex_.h StdioFile.h Watcher.h log.h	\
 log.cc IOError.cc IOError.h nonblock.cc utils.h execute.cc		\
-BlockMethod.h BlockMethod.cc WatcherImplementation.h			\
-WatcherImplementation.cc InotifyWatcher.cc InotifyWatcher.h		\
-PollingWatcher.cc PollingWatcher.h timeval.h
+BlockMethod.h BlockMethod.cc WatcherImplementation.cc			\
+InotifyWatcher.cc InotifyWatcher.h PollingWatcher.cc PollingWatcher.h	\
+timeval.h
 blockad_SOURCES=blockad.cc iptables.cc hosts.deny.cc
 LDADD=libutils.a
 EXTRA_DIST=${man_MANS}
