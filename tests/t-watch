@@ -23,7 +23,7 @@ rm -f WatchMe watch-results
 watchfile WatchMe > watch-results &
 pid=$!
 
-trap "kill ${pid} >/dev/null 2>&1" EXIT INT HUP TERM
+trap "kill ${pid} >/dev/null 2>&1 || true" EXIT INT HUP TERM
 
 sleep 1                         # allow watchfile to start up
 
