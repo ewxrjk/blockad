@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 #
 # Copyright © 2011 Richard Kettlewell
 #
