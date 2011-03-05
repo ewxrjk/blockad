@@ -20,6 +20,7 @@
 #include "Address.h"
 #include "Regex.h"
 #include "BlockMethod.h"
+#include "timeval.h"
 #include "log.h"
 #include "utils.h"
 #include <sys/select.h>
@@ -130,6 +131,8 @@ static void updateWatchers(const ConfFile *oldConfig,
                            std::vector<Watcher *> &oldWatchers) {
   size_t i, j;
   std::vector<Watcher *> newWatchers;
+  time_t limit = 0;
+  int fd;
   for(i = 0; i < newConfig->files.size(); ++i) {
     // Try and re-use the existing watcher
     if(oldConfig) {
@@ -145,7 +148,10 @@ static void updateWatchers(const ConfFile *oldConfig,
     }
     // We didn't manage to re-use an existing watcher
     newWatchers.push_back(new BanWatcher(newConfig->files[i]));
-    nonblock(newWatchers[i]->pollfd());
+    // Make the new watcher's FD nonblocking (if it has one)
+    fd = newWatchers[i]->pollfd(limit);
+    if(fd >= 0)
+      nonblock(fd);
   }
   // Delete redundant watchers
   for(j = 0; j < oldWatchers.size(); ++j)
@@ -242,21 +248,34 @@ int main(int argc, char **argv) {
         // Construct FD set
         int maxfd;
         fd_set fds;
+        struct timeval now, delta;
+        time_t limit = TIME_MAX;
         FD_ZERO(&fds);
         FD_SET(signal_pipe[0], &fds);
         maxfd = signal_pipe[0];
         for(size_t i = 0; i < watchers.size(); ++i) {
-          const int fd = watchers[i]->pollfd();
-          FD_SET(fd, &fds);
-          if(fd > maxfd)
-            maxfd = fd;
+          const int fd = watchers[i]->pollfd(limit);
+          if(fd >= 0) {
+            FD_SET(fd, &fds);
+            if(fd > maxfd)
+              maxfd = fd;
+          }
         }
         // Unblock signal while waiting
         if(sigprocmask(SIG_UNBLOCK, &sighup_mask, NULL) < 0) {
           error("sigprocmask: %s", strerror(errno));
           exit(-1);
         }
-        n = select(maxfd + 1, &fds, NULL, NULL, NULL);
+        if(limit != TIME_MAX) {
+          gettimeofday(&now, NULL);
+          delta = limit - now;
+          if(delta < 0) {
+            delta.tv_sec = 0;
+            delta.tv_usec = 0;
+          }
+          n = select(maxfd + 1, &fds, NULL, NULL, &delta);
+        } else
+          n = select(maxfd + 1, &fds, NULL, NULL, NULL);
         if(sigprocmask(SIG_BLOCK, &sighup_mask, NULL) < 0) {
           error("sigprocmask: %s", strerror(errno));
           exit(-1);
@@ -268,9 +287,14 @@ int main(int argc, char **argv) {
           exit(-1);
         }
         // Check logfiles for updates
+        gettimeofday(&now, NULL);
         for(size_t i = 0; i < watchers.size(); ++i) {
-          const int fd = watchers[i]->pollfd();
-          if(FD_ISSET(fd, &fds))
+          time_t limit = TIME_MAX;
+          const int fd = watchers[i]->pollfd(limit);
+          if(fd >= 0) {
+            if(FD_ISSET(fd, &fds))
+              watchers[i]->work();
+          } else if(now >= limit)
             watchers[i]->work();
         }
         // Check for signals

@@ -14,33 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <config.h>
-#include "Watcher.h"
-#include <cerrno>
-#include <cstdio>
+#ifndef POLLINGWATCHER_H
+#define POLLINGWATCHER_H
 
-class MyWatcher: public Watcher {
+#include "Watcher.h"
+
+class PollingWatcher: public WatcherImplementation {
 public:
-  MyWatcher(const std::string &path): Watcher(path) {}
-  
-  void processLine(const std::string &line) {
-    printf("%s", line.c_str());
-    if(line.find('\n') == std::string::npos)
-      printf(" [no trailing newline]\n");
-    fflush(stdout);
-    if(ferror(stdout))
-      throw std::runtime_error(std::string("error writing to stdout ") + strerror(errno));
-  }
+  PollingWatcher(const std::string &path,
+                 Watcher *watcher);
+  ~PollingWatcher();
+  int pollfd(time_t &limit) const;
+  void work();
+private:
+  time_t next;
+  dev_t dev;
+  ino_t ino;
+  void openFile();
+  void closeFile();
 };
 
-int main(int argc, char **argv) {
-  if(argc != 2)
-    fprintf(stderr, "Usage: watchfile PATH\n");
-  MyWatcher w(argv[1]);
-  for(;;) {
-    time_t limit;
-    if(w.pollfd(limit) < 0)
-      sleep(1);
-    w.work();
-  }
-}
+#endif /* POLLINGWATCHER_H */
+
+/*
+Local Variables:
+mode:c++
+c-basic-offset:2
+comment-column:40
+fill-column:79
+indent-tabs-mode:nil
+End:
+*/
