@@ -18,6 +18,7 @@
 #define TIMEVAL_H
 
 #include <sys/time.h>
+#include <limits.h>
 
 #if SIZEOF_TIME_T == SIZEOF_INT
 # define TIME_MAX INT_MAX

@@ -17,9 +17,7 @@
 #include <config.h>
 #include "Watcher.h"
 #include "PollingWatcher.h"
-#include "IOError.h"
 #include <cerrno>
-#include <sys/stat.h>
 
 PollingWatcher::PollingWatcher(const std::string &path,
                                Watcher *watcher):
@@ -28,10 +26,7 @@ PollingWatcher::PollingWatcher(const std::string &path,
   dev(-1),
   ino(-1) {
   // Try opening the file
-  if((fp = fopen(path.c_str(), "r"))) {
-    if(fseek(fp, 0, SEEK_END) < 0)
-      throw IOError("seeking " + path, errno);
-  }
+  openFile();
 }
 
 PollingWatcher::~PollingWatcher() {
@@ -50,11 +45,11 @@ void PollingWatcher::openFile() {
   if(!fp) {
     if(!(fp = fopen(path.c_str(), "r"))) {
       if(errno != ENOENT)
-        throw IOError("opening " + path, errno);
+        throw Watcher::IOError("opening " + path, errno);
       return;
     }
     if(fstat(fileno(fp), &sb) < 0)
-      throw IOError("fstat " + path, errno);
+      throw Watcher::IOError("fstat " + path, errno);
     dev = sb.st_dev;
     ino = sb.st_ino;
   }

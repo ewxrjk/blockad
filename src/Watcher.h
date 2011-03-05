@@ -20,6 +20,7 @@
 #include <string>
 #include <stdexcept>
 #include <cstring>
+#include <cstdio>
 
 #if HAVE_SYS_INOTIFY_H
 # define WATCHER InotifyWatcher

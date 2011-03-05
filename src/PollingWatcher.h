@@ -18,6 +18,7 @@
 #define POLLINGWATCHER_H
 
 #include "Watcher.h"
+#include <sys/stat.h>
 
 class PollingWatcher: public WatcherImplementation {
 public:

@@ -16,7 +16,6 @@
 //
 #include <config.h>
 #include "Watcher.h"
-#include "IOError.h"
 #include <cerrno>
 
 WatcherImplementation::~WatcherImplementation() {
@@ -58,7 +57,7 @@ void WatcherImplementation::readLines() {
       // and throw.
       if(ferror(fp)) {
         closeFile();
-        throw IOError("reading " + path, errno);
+        throw Watcher::IOError("reading " + path, errno);
       }
       // Otherwise it must be EOF.
       // Make sure future reads, after the file is extended, will succeed.

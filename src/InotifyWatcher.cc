@@ -35,17 +35,17 @@ InotifyWatcher::InotifyWatcher(const std::string &path_arg,
   dir_wd(-1) {
   // Get an inotify FD
   if((ifd = inotify_init()) < 0)
-    throw SystemError("inotify_init", errno);
+    throw Watcher::SystemError("inotify_init", errno);
   // Watch the containing directory
   if((dir_wd = inotify_add_watch(ifd, dir.c_str(),
                                  IN_CREATE|IN_DELETE|IN_MOVED_FROM|IN_MOVED_TO)) < 0)
-    throw SystemError("inotify_add_watch for " + dir, errno);
+    throw Watcher::SystemError("inotify_add_watch for " + dir, errno);
   // Try to open the file.  This will add file_wd if it exists.
   openFile();
   // Discard initial content
   if(fp) {
     if(fseek(fp, 0, SEEK_END) < 0)
-      throw IOError("seeking " + path, errno);
+      throw Watcher::IOError("seeking " + path, errno);
   }
 }
 
@@ -64,7 +64,7 @@ void InotifyWatcher::openFile() {
     // wait for it to come into existence.
     if(!(fp = fopen(path.c_str(), "r"))) {
       if(errno != ENOENT)
-        throw IOError("opening " + path, errno);
+        throw Watcher::IOError("opening " + path, errno);
     } else {
       // If we did open it then detect changes to it.
       // (But see below concerning IN_*_SELF.)
@@ -72,7 +72,7 @@ void InotifyWatcher::openFile() {
                                       IN_MODIFY
                                       |IN_MOVE_SELF
                                       |IN_DELETE_SELF)) < 0)
-        throw SystemError("inotify_add_watch for " + path, errno);
+        throw Watcher::SystemError("inotify_add_watch for " + path, errno);
     }
   }
 }
@@ -92,7 +92,7 @@ void InotifyWatcher::closeFile() {
         if(errno == EINVAL)
           warn("inotify_rm_watch: %s", strerror(errno));
         else
-          throw SystemError("inotify_rm_watch for " + path, errno);
+          throw Watcher::SystemError("inotify_rm_watch for " + path, errno);
       }
       file_wd = -1;
     }
@@ -106,7 +106,7 @@ void InotifyWatcher::work() {
   int n = read(ifd, buffer, sizeof buffer);
   if(n < 0) {
     if(errno != EINTR && errno != EAGAIN)
-      throw SystemError("read from inotify fd", errno);
+      throw Watcher::SystemError("read from inotify fd", errno);
     return;
   }
   // We might have more than one event.
@@ -114,11 +114,11 @@ void InotifyWatcher::work() {
   while(n > 0) {
     // Make sure we have a whole event
     if((size_t)n < sizeof (struct inotify_event))
-      throw SystemError("short read from inotify fd");
+      throw Watcher::SystemError("short read from inotify fd");
     const struct inotify_event &event = *(const struct inotify_event *)ptr;
     const size_t total = sizeof event + event.len;
     if((size_t)n < total)
-      throw SystemError("short read from inotify fd");
+      throw Watcher::SystemError("short read from inotify fd");
     
     // See if the file contents changed.
     if(event.wd == file_wd) {
