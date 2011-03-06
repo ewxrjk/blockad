@@ -1,3 +1,14 @@
+blockad (0.2) unstable; urgency=low
+
+  * Release 0.2
+  * Platforms without inotify are supported.
+  * It is now possible to block by appending to /etc/hosts.deny as well as
+    with iptables.
+  * Extra logfile patterns have been added.
+  * Logging has been improved.
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sun, 06 Mar 2011 11:21:46 +0000
+
 banjammer (0.1) unstable; urgency=low
 
   * Release 0.1
