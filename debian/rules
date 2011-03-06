@@ -57,47 +57,47 @@ build:
 	./configure ${CONFIGURE} ${CONFIGURE_EXTRA}
 	$(MAKE) ${PARALLEL}
 
-binary: pkg-banjammer
+binary: pkg-blockad
 
-pkg-banjammer: build
-	rm -rf debian/banjammer
-	$(MKDIR) debian/banjammer/DEBIAN
-	$(MKDIR) debian/banjammer/usr/share/doc/banjammer
-	$(MKDIR) debian/banjammer/etc/init.d
+pkg-blockad: build
+	rm -rf debian/blockad
+	$(MKDIR) debian/blockad/DEBIAN
+	$(MKDIR) debian/blockad/usr/share/doc/blockad
+	$(MKDIR) debian/blockad/etc/init.d
 	$(INSTALL_DATA) debian/copyright \
-		debian/banjammer/usr/share/doc/banjammer/copyright
+		debian/blockad/usr/share/doc/blockad/copyright
 	$(INSTALL_DATA) debian/changelog \
-		debian/banjammer/usr/share/doc/banjammer/changelog
-	gzip -9 debian/banjammer/usr/share/doc/banjammer/changelog*
-	$(INSTALL_DATA) debian/conffiles.banjammer \
-		debian/banjammer/DEBIAN/conffiles
-	$(INSTALL_SCRIPT) debian/postinst.banjammer \
-		debian/banjammer/DEBIAN/postinst
-	$(INSTALL_SCRIPT) debian/prerm.banjammer \
-		debian/banjammer/DEBIAN/prerm
-	$(INSTALL_SCRIPT) debian/postrm.banjammer \
-		debian/banjammer/DEBIAN/postrm
-	$(MAKE) DESTDIR=`pwd`/debian/banjammer installdirs install
-	strip --remove-section=.comment --remove-section=.note debian/banjammer/usr/*bin/*
-	$(INSTALL_DATA) examples/banjammer.conf debian/banjammer/etc/banjammer.conf
-	$(INSTALL_SCRIPT) examples/banjammer.init debian/banjammer/etc/init.d/banjammer
-	$(INSTALL_DATA) README debian/banjammer/usr/share/doc/banjammer
-	dpkg-shlibdeps -Tdebian/substvars.banjammer \
-		debian/banjammer/usr/*bin/*
-	gzip -9f debian/banjammer/usr/share/doc/banjammer/README \
-		 debian/banjammer/usr/share/man/man*/*
-	cd debian/banjammer && \
+		debian/blockad/usr/share/doc/blockad/changelog
+	gzip -9 debian/blockad/usr/share/doc/blockad/changelog*
+	$(INSTALL_DATA) debian/conffiles.blockad \
+		debian/blockad/DEBIAN/conffiles
+	$(INSTALL_SCRIPT) debian/postinst.blockad \
+		debian/blockad/DEBIAN/postinst
+	$(INSTALL_SCRIPT) debian/prerm.blockad \
+		debian/blockad/DEBIAN/prerm
+	$(INSTALL_SCRIPT) debian/postrm.blockad \
+		debian/blockad/DEBIAN/postrm
+	$(MAKE) DESTDIR=`pwd`/debian/blockad installdirs install
+	strip --remove-section=.comment --remove-section=.note debian/blockad/usr/*bin/*
+	$(INSTALL_DATA) examples/blockad.conf debian/blockad/etc/blockad.conf
+	$(INSTALL_SCRIPT) examples/blockad.init debian/blockad/etc/init.d/blockad
+	$(INSTALL_DATA) README debian/blockad/usr/share/doc/blockad
+	dpkg-shlibdeps -Tdebian/substvars.blockad \
+		debian/blockad/usr/*bin/*
+	gzip -9f debian/blockad/usr/share/doc/blockad/README \
+		 debian/blockad/usr/share/man/man*/*
+	cd debian/blockad && \
 	    find -name DEBIAN -prune -o -type f -print \
 		| sed 's/^\.\///' \
 		| xargs md5sum > DEBIAN/md5sums
-	dpkg-gencontrol -isp -pbanjammer -Pdebian/banjammer -Tdebian/substvars.banjammer
-	chown -R root:root debian/banjammer
-	chmod -R g-ws debian/banjammer
-	dpkg --build debian/banjammer ..
+	dpkg-gencontrol -isp -pblockad -Pdebian/blockad -Tdebian/substvars.blockad
+	chown -R root:root debian/blockad
+	chmod -R g-ws debian/blockad
+	dpkg --build debian/blockad ..
 
 clean:
 	if test -f Makefile; then $(MAKE) distclean; fi
 	rm -f config.cache
 	rm -f debian/files
 	rm -f debian/substvars.*
-	rm -rf debian/banjammer
+	rm -rf debian/blockad

@@ -17,6 +17,7 @@
 #include <config.h>
 #include "ConfFile.h"
 #include "StdioFile.h"
+#include "BlockMethod.h"
 #include "log.h"
 #include <sstream>
 #include <cerrno>
@@ -25,13 +26,10 @@
 
 // ConfFile -------------------------------------------------------------------
 
-ConfFile::ConfFile(): rate_max(rate_max_default),
-                      rate_interval(rate_interval_default) {
-}
-
 ConfFile::ConfFile(const std::string &path_): 
   rate_max(rate_max_default),
   rate_interval(rate_interval_default),
+  block(BlockMethodType::find(block_default)->create()),
   path(path_) {
   parse();
 }
@@ -137,7 +135,7 @@ void ConfFile::parseLine(const std::string &line) {
     else
       throw SyntaxError(this, "invalid interval for 'rate'");
   } else if(bits[0] == "exempt") {
-    // exempty ADDRESS[/MASK]
+    // exempt ADDRESS[/MASK]
 
     // Syntax check
     if(bits.size() < 2)
@@ -146,6 +144,15 @@ void ConfFile::parseLine(const std::string &line) {
       throw SyntaxError(this, "excess arguments to 'exempt'");
     AddressPattern p(bits[1]);
     exempted.push_back(p);
+  } else if(bits[0] == "block") {
+    // block METHOD
+
+    if(bits.size() < 2)
+      throw SyntaxError(this, "missing argument to 'block'");
+    const BlockMethodType *type = BlockMethodType::find(bits[1]);
+    if(!type)
+      throw SyntaxError(this, "unknown block method '" + bits[1] + "'");
+    block = type->create(this, bits);
   } else
     throw SyntaxError(this, "unrecognized command '" + bits[0] + "'");
 }
@@ -251,6 +258,8 @@ int ConfFile::decodeHex(char ch) {
   else if(ch >= 'a' && ch <= 'f') return ch - ('a' - 10);
   else return ch - ('A' - 10);
 }
+
+const char ConfFile::block_default[] = "iptables";
 
 // ConfFile::SyntaxError ------------------------------------------------------
 

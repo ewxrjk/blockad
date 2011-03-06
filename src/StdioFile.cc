@@ -18,6 +18,7 @@
 #include "StdioFile.h"
 #include "IOError.h"
 #include <cerrno>
+#include <cstdarg>
 
 // StdioFile ------------------------------------------------------------------
 
@@ -69,6 +70,16 @@ bool StdioFile::readline(std::string &line) {
     line += c;
   }
   return !!line.size();
+}
+
+int StdioFile::printf(const char *format, ...) {
+  va_list ap;
+  va_start(ap, format);
+  int rc = vfprintf(fp, format, ap);
+  va_end(ap);
+  if(rc < 0)
+    throw IOError("writing", path, errno);
+  return rc;
 }
 
 /*

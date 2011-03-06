@@ -23,6 +23,7 @@
 #include <vector>
 #include <stdexcept>
 
+// Wrapper for POSIX regex API
 class Regex {
 public:
   static const int default_nmatches = 64;

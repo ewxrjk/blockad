@@ -1,14 +1,14 @@
-banjammer
-=========
+blockad
+=======
 
-banjammer is a daemon that monitors your logfiles for persistent
-break-in attempts and adds firewall rules to reject further
-connections from the same sources.
+blockad is a daemon that monitors your logfiles for persistent
+break-in attempts and blocks further connections, either using the
+system's firewall or using TCP wrappers (hosts.deny).
 
 Requirements
 ============
 
-banjammer only runs on Linux.  You will need GNU C++ to build it.
+blockad only runs on Linux.  You will need GNU C++ to build it.
 
 Installation
 ============
@@ -17,10 +17,10 @@ Installation
   make
   sudo make install
 
-See 'man banjammer' for documentation.
+See 'man blockad' for documentation.
 
-There is an example config file in examples/banjammer.conf and an
-example init sscript in examples/banjammer.init.
+There is an example config file in examples/blockad.conf and an
+example init script in examples/blockad.init.
 
 Licence
 =======

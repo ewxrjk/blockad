@@ -18,8 +18,9 @@
 #include "Watcher.h"
 #include "ConfFile.h"
 #include "Address.h"
-#include "Regex.h"
-#include "Ban.h"
+#include "Regex_.h"
+#include "BlockMethod.h"
+#include "timeval.h"
 #include "log.h"
 #include "utils.h"
 #include <sys/select.h>
@@ -29,20 +30,28 @@
 #include <map>
 #include <deque>
 
+// Pipe used to communicate from signal handlers to mainline code
 static int signal_pipe[2];
+
+// The currently active configuration
 static ConfFile *config;
 
+// Data about one address
 struct AddressData {
+  // Times that this address was detected
   std::deque<time_t> times;
-  bool banned;
 
-  AddressData(): banned(false) {}
+  // True if this address has been blocked
+  bool blocked;
+
+  AddressData(): blocked(false) {}
 };
 
 
-class BanWatcher: public Watcher {
+// A logfile watcher that knows how to block things
+class BlockingWatcher: public Watcher {
 public:
-  BanWatcher(const std::string &path): Watcher(path) {}
+  BlockingWatcher(const std::string &path): Watcher(path) {}
 
   // Called when a line is read from a logfile
   void processLine(const std::string &line) {
@@ -60,6 +69,7 @@ public:
   }
 
 private:
+  // Global store of data about addresses that have been detected
   static std::map<Address,AddressData> addressData;
 
   // Called when an address is detected
@@ -73,7 +83,8 @@ private:
       }
     // Find (or create) the data for this address
     AddressData &ad = addressData[a];
-    if(!ad.banned) {
+    // Only consider addresses that have not yet been blocked
+    if(!ad.blocked) {
       time_t now;
       time(&now);
       // Strip off too-old detection times
@@ -82,36 +93,46 @@ private:
         ad.times.pop_front();
       // Add the latest detection time
       ad.times.push_back(now);
-      // See if the ban rate has been exceeded
+      // See if the block rate has been exceeded
       if(ad.times.size() > config->rate_max) {
-        banAddress(a);
-        ad.banned = true;
+        if(blockAddress(a))
+          ad.blocked = true;
       }
     }
   }
 
-  // Ban an address
-  void banAddress(const Address &a) {
-    info("banning %s", a.asString().c_str());
-    Ban(a);
+  // Block an address
+  bool blockAddress(const Address &a) {
+    info("blocking %s", a.asString().c_str());
+    if(config->block->block(a))
+      return true;
+    else {
+      error("failed to block %s", a.asString().c_str());
+      return false;
+    }
   }
 };
 
-std::map<Address,AddressData> BanWatcher::addressData;
+std::map<Address,AddressData> BlockingWatcher::addressData;
 
+// Signal handler for SIGHUP
 extern "C" {
   static void sighup_handler(int sig) {
     int save_errno = errno;
-    write(signal_pipe[1], &sig, 1);
+    int rc = write(signal_pipe[1], &sig, 1);
+    (void) rc;
     errno = save_errno;
   }
 }
 
+// Update the watchers array, re-use existing watchers if possible.
 static void updateWatchers(const ConfFile *oldConfig,
                            const ConfFile *newConfig,
                            std::vector<Watcher *> &oldWatchers) {
   size_t i, j;
   std::vector<Watcher *> newWatchers;
+  time_t limit = 0;
+  int fd;
   for(i = 0; i < newConfig->files.size(); ++i) {
     // Try and re-use the existing watcher
     if(oldConfig) {
@@ -126,8 +147,11 @@ static void updateWatchers(const ConfFile *oldConfig,
       }
     }
     // We didn't manage to re-use an existing watcher
-    newWatchers.push_back(new BanWatcher(newConfig->files[i]));
-    nonblock(newWatchers[i]->pollfd());
+    newWatchers.push_back(new BlockingWatcher(newConfig->files[i]));
+    // Make the new watcher's FD nonblocking (if it has one)
+    fd = newWatchers[i]->pollfd(limit);
+    if(fd >= 0)
+      nonblock(fd);
   }
   // Delete redundant watchers
   for(j = 0; j < oldWatchers.size(); ++j)
@@ -139,9 +163,10 @@ static void updateWatchers(const ConfFile *oldConfig,
 int main(int argc, char **argv) {
   int n;
   bool background = true;
-  const char *conffile = "/etc/banjammer.conf";
+  const char *conffile = "/etc/blockad.conf";
   const char *pidfile = NULL;
 
+  // Parse command-line options
   while((n = getopt(argc, argv, "dfc:P:")) >= 0) {
     switch(n) {
     case 'd':
@@ -195,10 +220,12 @@ int main(int argc, char **argv) {
     nonblock(signal_pipe[0]);
     nonblock(signal_pipe[1]);
     // Block SIGHUP
+    // The signal is blocked except when waiting in select(), so that signal
+    // delivery cannot interrupt any syscalls.
     sigset_t sighup_mask;
     sigemptyset(&sighup_mask);
     sigaddset(&sighup_mask, SIGHUP);
-    if(sigprocmask(SIG_BLOCK, &sighup_mask, NULL) < 0) {
+    if(sigprocmask(SIG_BLOCK, &sighup_mask, &original_sigmask) < 0) {
       error("sigprocmask: %s", strerror(errno));
       exit(-1);
     }
@@ -214,24 +241,41 @@ int main(int argc, char **argv) {
     std::vector<Watcher *> watchers;
     // Create the initial watchers
     updateWatchers(NULL, config, watchers);
+    // Outer loop, repeats once per configuration change
     for(;;) {
+      // Inner loop, repeats once per event of any kind
       for(;;) {
+        // Construct FD set
         int maxfd;
         fd_set fds;
+        struct timeval now, delta;
+        time_t limit = TIME_MAX;
         FD_ZERO(&fds);
         FD_SET(signal_pipe[0], &fds);
         maxfd = signal_pipe[0];
         for(size_t i = 0; i < watchers.size(); ++i) {
-          const int fd = watchers[i]->pollfd();
-          FD_SET(fd, &fds);
-          if(fd > maxfd)
-            maxfd = fd;
+          const int fd = watchers[i]->pollfd(limit);
+          if(fd >= 0) {
+            FD_SET(fd, &fds);
+            if(fd > maxfd)
+              maxfd = fd;
+          }
         }
+        // Unblock signal while waiting
         if(sigprocmask(SIG_UNBLOCK, &sighup_mask, NULL) < 0) {
           error("sigprocmask: %s", strerror(errno));
           exit(-1);
         }
-        n = select(maxfd + 1, &fds, NULL, NULL, NULL);
+        if(limit != TIME_MAX) {
+          gettimeofday(&now, NULL);
+          delta = limit - now;
+          if(delta < 0) {
+            delta.tv_sec = 0;
+            delta.tv_usec = 0;
+          }
+          n = select(maxfd + 1, &fds, NULL, NULL, &delta);
+        } else
+          n = select(maxfd + 1, &fds, NULL, NULL, NULL);
         if(sigprocmask(SIG_BLOCK, &sighup_mask, NULL) < 0) {
           error("sigprocmask: %s", strerror(errno));
           exit(-1);
@@ -242,15 +286,22 @@ int main(int argc, char **argv) {
           error("select: %s", strerror(errno));
           exit(-1);
         }
+        // Check logfiles for updates
+        gettimeofday(&now, NULL);
         for(size_t i = 0; i < watchers.size(); ++i) {
-          const int fd = watchers[i]->pollfd();
-          if(FD_ISSET(fd, &fds))
+          time_t limit = TIME_MAX;
+          const int fd = watchers[i]->pollfd(limit);
+          if(fd >= 0) {
+            if(FD_ISSET(fd, &fds))
+              watchers[i]->work();
+          } else if(now >= limit)
             watchers[i]->work();
         }
+        // Check for signals
         if(FD_ISSET(signal_pipe[0], &fds)) {
-          char drain[1024];
-          while(read(signal_pipe[0], drain, sizeof drain) > 0)
-            ;
+          char drain[4];
+          int rc = read(signal_pipe[0], drain, sizeof drain);
+          (void)rc;
           break;
         }
       }

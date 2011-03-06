@@ -20,6 +20,6 @@ set -e
 
 case "$1" in
 purge )
-  update-rc.d banjammer remove > /dev/null
+  update-rc.d blockad remove > /dev/null
   ;;
 esac

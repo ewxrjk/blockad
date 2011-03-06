@@ -1,0 +1,10 @@
+* Changes in version 0.2
+
+Platforms without inotify are supported.
+
+It is now possible to block by appending to /etc/hosts.deny as well as
+with iptables.
+
+Extra logfile patterns have been added.
+
+Logging has been improved.

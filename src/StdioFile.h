@@ -40,7 +40,7 @@ public:
 
   int readc();                          // return EOF or char
   bool readline(std::string &line);     // return true if a line, false at EOF
-  
+  int printf(const char *format, ...);  // formatted output
 private:
   std::string path;
   FILE *fp;

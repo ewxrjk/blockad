@@ -30,8 +30,14 @@ public:
           int errno_value);
 };
 
-#endif /* IOERROR_H */
+// Thrown if any system error occurs
+class SystemError: public std::runtime_error {
+public:
+  SystemError(const std::string &what,
+          int errno_value);
+};
 
+#endif /* IOERROR_H */
 
 /*
 Local Variables:

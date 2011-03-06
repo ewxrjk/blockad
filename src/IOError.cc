@@ -29,6 +29,11 @@ IOError::IOError(const std::string &what,
   std::runtime_error(what + ": " + strerror(errno_value)) {
 }
 
+SystemError::SystemError(const std::string &what,
+                         int errno_value):
+  std::runtime_error(what + ": " + strerror(errno_value)) {
+}
+
 /*
 Local Variables:
 mode:c++

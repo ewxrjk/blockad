@@ -14,17 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <config.h>
+#ifndef INOTIFYWATCHER_H
+#define INOTIFYWATCHER_H
+
+#if HAVE_SYS_INOTIFY_H
 #include "Watcher.h"
-#include "InotifyWatcher.h"
-#include "PollingWatcher.h"
 
-Watcher::Watcher(const std::string &path): impl(new WATCHER(path, this)) {
-}
+class InotifyWatcher: public WatcherImplementation {
+public:
+  InotifyWatcher(const std::string &path,
+                 Watcher *watcher);
+  ~InotifyWatcher();
+  int pollfd(time_t &limit) const;
+  void work();
+private:
+  const std::string base;               // base filename
+  const std::string dir;                // containing directory
+  int ifd;                              // inotify descriptor
+  int file_wd;                          // file watch descriptor or -1
+  int dir_wd;                           // directory watch descriptor
 
-Watcher::~Watcher() {
-  delete(impl);
-}
+  void openFile();                      // try to ensure the watched file open
+  void closeFile();                     // close the watched file if open
+
+};
+#endif
+
+#endif /* INOTIFYWATCHER_H */
 
 /*
 Local Variables:

@@ -16,6 +16,7 @@
 //
 #include <config.h>
 #include "Address.h"
+#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <cerrno>
 #include <cstdlib>

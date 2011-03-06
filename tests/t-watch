@@ -18,25 +18,34 @@
 set -e
 export PATH=".:tests:${PATH}"
 
-rm -f WatchMe
+rm -f WatchMe watch-results
 
 watchfile WatchMe > watch-results &
 pid=$!
+
+trap "kill ${pid} >/dev/null 2>&1 || true" EXIT INT HUP TERM
 
 sleep 1                         # allow watchfile to start up
 
 echo one > WatchMe
 echo two >> WatchMe
+sleep 1
 
 mv WatchMe DontWatchMe
+sleep 1
+
 echo three >> DontWatchMe
 
 echo four > WatchMe
 echo five >> WatchMe
+sleep 1
+
 mv DontWatchMe WatchMe
+sleep 1
 
 exec 3>>WatchMe
 rm -f WatchMe
+sleep 1
 
 echo six >&3
 

@@ -17,7 +17,7 @@
 noinst_PROGRAMS=watchfile regtest conftest addrtest
 watchfile_SOURCES=watchfile.cc
 regtest_SOURCES=regtest.cc
-conftest_SOURCES=conftest.cc
+conftest_SOURCES=conftest.cc ../src/iptables.cc
 addrtest_SOURCES=addrtest.cc
 LDADD=../src/libutils.a
 AM_CPPFLAGS=-I${top_srcdir}/src

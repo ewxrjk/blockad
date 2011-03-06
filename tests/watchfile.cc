@@ -37,6 +37,10 @@ int main(int argc, char **argv) {
   if(argc != 2)
     fprintf(stderr, "Usage: watchfile PATH\n");
   MyWatcher w(argv[1]);
-  for(;;)
+  for(;;) {
+    time_t limit;
+    if(w.pollfd(limit) < 0)
+      sleep(1);
     w.work();
+  }
 }

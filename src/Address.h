@@ -22,11 +22,13 @@
 #include <netinet/in.h>
 #include <cstring>
 
+// Thrown for an invald address (either by Address or AddressPattern)
 class InvalidAddress: public std::runtime_error {
 public:
   InvalidAddress(): std::runtime_error("Invalid address") {}
 };
 
+// Thrown for an invalid address pattern
 class InvalidAddressPattern: public std::runtime_error {
 public:
   InvalidAddressPattern(): std::runtime_error("Invalid address pattern") {}
@@ -34,6 +36,7 @@ public:
     std::runtime_error("Invalid address pattern: " + w) {}
 };
 
+// Common functionality for Address and AddressPattern
 class AddressBase {
 public:
   static int convert(struct in6_addr &addr,
@@ -44,13 +47,17 @@ public:
 };
 
 // An address
+//
+// All addresses are represented internally as IPv6 addresses, with
+// IPv4 addresses mapped into ::ffff:0:0/32.
 class Address: private AddressBase {
 public:
   // Default address is ::
   inline Address() {
     memset(&address, 0, sizeof address);
   }
-  
+
+  // Expects an IPv4 dotted-quad or IPv6 colon-separate address
   inline Address(const std::string &s) {
     assign(s);
   }
@@ -59,14 +66,14 @@ public:
     assign(s);
     return *this;
   }
-  
+
   inline bool operator<(const Address &that) const {
     return memcmp(&address, &that.address, sizeof (struct in6_addr)) < 0;
   }
 
   void assign(const std::string &s);
 
-  bool is4() const;
+  bool is4() const;                     // true if a V4 address
   std::string as4() const;              // as V4, or throws
   std::string as6() const;              // alway as V6
   std::string asString() const;         // as V4 if possible, else V6
@@ -84,6 +91,8 @@ public:
     memset(&mask, 0, sizeof mask);
   }
 
+  // Expects an IPv4 dotted-quad or IPv6 colon-separate address, optionally
+  // followed by /N to indicate the size of the network part.
   inline AddressPattern(const std::string &s) { 
     assign(s);
   }
@@ -95,8 +104,10 @@ public:
 
   void assign(const std::string &s);
 
+  // Return true if address A matches this pattern
   bool matches(const Address &a) const;
 
+  // Expects an IPv4 dotted-quad or IPv6 colon-separate address
   bool matches(const std::string &s) const {
     return matches(Address(s));
   }

@@ -1,11 +1,11 @@
-.TH banjammer 8
+.TH blockad 8
 .SH NAME
-banjammer \- block persistent hackers
+blockad \- block persistent hackers
 .SH SYNOPSIS
-.B banjammer
+.B blockad
 .RI [ OPTIONS ]
 .SH DESCRIPTION
-.B banjammer
+.B blockad
 reads your logfiles and when it detects persistent hacking attempts,
 blocks them using the kernel's firewall.
 .SH OPTIONS
@@ -16,13 +16,13 @@ Debug mode.
 .B -f
 Foreground mode.
 (By default
-.B banjammer
+.B blockad
 runs as a daemon.)
 .TP
 .B -c \fIPATH\fR
 Read configuration file.
 The default is
-.IR /etc/banjammer.conf .
+.IR /etc/blockad.conf .
 .TP
 .B -P \fIPATH\fR
 Write a pidfile.
@@ -36,7 +36,7 @@ For example, \fB/var/log/auth.log\fR.
 .B address \fIREGEX\fR [\fIN\fR]
 Defines the regex which matches break-in attempts.
 The source address should be the \fIN\fRth capture.
-It may be an IPv4 address, an IPv6 address or a hostname.
+It may be an IPv4 address or an IPv6 address.
 .IP
 .I REGEX
 is a POSIX extended regular expression.
@@ -45,17 +45,35 @@ It is recommended that it be surrounded with single quotes (see below).
 The default is the first capture, i.e. \fIN\fR = 1.
 .TP
 .B rate \fIATTEMPTS\fB/\fIINTERVAL\fR
-Set the failed login rate which will cause a ban.
-Any address which exceeds this rate will be banned.
+Set the failed login rate which will cause the source to be blocked.
+Any address which exceeds this rate will be blocked.
 .IP
 \fIINTERVAL\fR can be \fBminute\fR, \fBhour\fR, \fBday\fR or \fBweek\fR.
 .IP
 The default rate is \fB5/hour\fR.
 .TP
 .B exempt \fIADDRESS\fR[\fB/\fIMASK\fR]
-Never ban \fIADDRESS\fR, or if a mask is specified, any address
+Never block \fIADDRESS\fR, or if a mask is specified, any address
 in the network \fIADDRESS\fR\fB/\fIMASK\fR.
 Use this to ensure you don't accidentally lock yourself out.
+.TP
+.B block \fIMETHOD\fR [\fIPARAMETERS \fR...]
+Selects the block method to use.  Valid block methods are:
+.RS
+.TP
+.B iptables
+Add a firewall rule to block the offending host.
+The rule will be inserted at the very start of the \fBINPUT\fR chain.
+This is the default.
+.TP
+.B hosts.deny \fR[\fIPATH\fR]
+Append a line to \fI/etc/hosts.deny\fR to block the offending host.
+If the optional \fIPATH\fR is specified then that is used instead of
+\fI/etc/hosts.deny\fR.
+.RE
+.PP
+All directives can be used more than once, though in the case of
+\fBrate\fR and \fBblock\fR, the last one will always win.
 .PP
 Arguments containing spaces must be quoted with double quote (in which
 C-style backslash escapes may be used) or single quotes (in which
@@ -70,13 +88,22 @@ If the configuration file now contains a syntax error, the old version
 will be used.
 .SH FILES
 .TP
-.I /etc/banjammer.conf
+.I /etc/blockad.conf
 Configuration file.
 .SH NOTES
 If you restart the daemon then it will forget its record of past
-break-in attempts.
+break-in attempts, giving any unblocked hosts a "fresh start".
 This does not apply to re-reading the configuration file.
+.PP
+If you reboot the computer then, with the \fBiptables\fR block method,
+the list of blocked hosts is also forgotten.  With the
+\fBhosts.deny\fR block method, however, the list of blocked hosts will
+persist.
+.PP
+The \fBhosts.deny\fR method appends to \fI/etc/hosts.deny\fR without
+any attempt at locking.
 .SH "SEE ALSO"
+.BR hosts.deny (5),
 .BR iptables (8),
 .BR ip6tables (8),
 .BR sshd (8)

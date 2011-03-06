@@ -14,20 +14,43 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#ifndef BAN_H
-#define BAN_H
-
+#include <config.h>
+#include "BlockMethod.h"
 #include "Address.h"
+#include "utils.h"
 
-bool BanLinux(const Address &address);
+class BlockIptables: public BlockMethod {
+public:
+  bool block(const Address &a) {
+    std::vector<std::string> command;
 
-#if __linux__
-# define Ban BanLinux
-#else
-# error Unsupported operating system
-#endif
+    if(a.is4())
+      command.push_back("iptables");
+    else
+      command.push_back("ip6tables");
+    command.push_back("-I");
+    command.push_back("INPUT");
+    command.push_back("-j");
+    command.push_back("REJECT");
+    command.push_back("-s");
+    command.push_back(a.asString());
+    if(execute(command))
+      return false;
+    else
+      return true;
+  }
+};
 
-#endif /* BAN_H */
+class BlockIptablesType: public BlockMethodType {
+public:
+  BlockIptablesType(): BlockMethodType("iptables") {}
+  
+  BlockMethod *create() const {
+    return new BlockIptables();
+  }
+};
+
+static const BlockIptablesType block_iptables;
 
 /*
 Local Variables:

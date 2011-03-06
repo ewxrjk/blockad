@@ -14,27 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <config.h>
+#ifndef POLLINGWATCHER_H
+#define POLLINGWATCHER_H
 
-#if __linux__
-#include "Ban.h"
-#include "log.h"
-#include <cstdlib>
+#include "Watcher.h"
+#include <sys/stat.h>
 
-bool BanLinux(const Address &a) {
-  std::string command;
-  if(a.is4())
-    command = "iptables -I INPUT -j REJECT -s " + a.as4();
-  else
-    command = "ip6tables -I INPUT -j REJECT -s " + a.as6();
-  debug("command: %s", command.c_str());
-  int rc = system(command.c_str());
-  if(rc) {
-    error("ban command exited %#x: %s", rc, command.c_str());
-    return false;
-    // TODO we should capture iptables' stderr and report that
-  }
-  return true;
-}
+class PollingWatcher: public WatcherImplementation {
+public:
+  PollingWatcher(const std::string &path,
+                 Watcher *watcher);
+  ~PollingWatcher();
+  int pollfd(time_t &limit) const;
+  void work();
+private:
+  time_t next;
+  dev_t dev;
+  ino_t ino;
+  void openFile();
+  void closeFile();
+};
 
-#endif
+#endif /* POLLINGWATCHER_H */
+
+/*
+Local Variables:
+mode:c++
+c-basic-offset:2
+comment-column:40
+fill-column:79
+indent-tabs-mode:nil
+End:
+*/
