@@ -45,15 +45,15 @@ It is recommended that it be surrounded with single quotes (see below).
 The default is the first capture, i.e. \fIN\fR = 1.
 .TP
 .B rate \fIATTEMPTS\fB/\fIINTERVAL\fR
-Set the failed login rate which will cause a ban.
-Any address which exceeds this rate will be banned.
+Set the failed login rate which will cause the source to be blocked.
+Any address which exceeds this rate will be blocked.
 .IP
 \fIINTERVAL\fR can be \fBminute\fR, \fBhour\fR, \fBday\fR or \fBweek\fR.
 .IP
 The default rate is \fB5/hour\fR.
 .TP
 .B exempt \fIADDRESS\fR[\fB/\fIMASK\fR]
-Never ban \fIADDRESS\fR, or if a mask is specified, any address
+Never block \fIADDRESS\fR, or if a mask is specified, any address
 in the network \fIADDRESS\fR\fB/\fIMASK\fR.
 Use this to ensure you don't accidentally lock yourself out.
 .TP

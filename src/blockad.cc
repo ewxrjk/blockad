@@ -41,17 +41,17 @@ struct AddressData {
   // Times that this address was detected
   std::deque<time_t> times;
 
-  // True if this address has been banned
-  bool banned;
+  // True if this address has been blocked
+  bool blocked;
 
-  AddressData(): banned(false) {}
+  AddressData(): blocked(false) {}
 };
 
 
-// A logfile watcher that knows how to ban things
-class BanWatcher: public Watcher {
+// A logfile watcher that knows how to block things
+class BlockingWatcher: public Watcher {
 public:
-  BanWatcher(const std::string &path): Watcher(path) {}
+  BlockingWatcher(const std::string &path): Watcher(path) {}
 
   // Called when a line is read from a logfile
   void processLine(const std::string &line) {
@@ -83,8 +83,8 @@ private:
       }
     // Find (or create) the data for this address
     AddressData &ad = addressData[a];
-    // Only consider addresses that have not yet been banned
-    if(!ad.banned) {
+    // Only consider addresses that have not yet been blocked
+    if(!ad.blocked) {
       time_t now;
       time(&now);
       // Strip off too-old detection times
@@ -93,27 +93,27 @@ private:
         ad.times.pop_front();
       // Add the latest detection time
       ad.times.push_back(now);
-      // See if the ban rate has been exceeded
+      // See if the block rate has been exceeded
       if(ad.times.size() > config->rate_max) {
-        if(banAddress(a))
-          ad.banned = true;
+        if(blockAddress(a))
+          ad.blocked = true;
       }
     }
   }
 
-  // Ban an address
-  bool banAddress(const Address &a) {
-    info("banning %s", a.asString().c_str());
+  // Block an address
+  bool blockAddress(const Address &a) {
+    info("blocking %s", a.asString().c_str());
     if(config->block->block(a))
       return true;
     else {
-      error("failed to ban %s", a.asString().c_str());
+      error("failed to block %s", a.asString().c_str());
       return false;
     }
   }
 };
 
-std::map<Address,AddressData> BanWatcher::addressData;
+std::map<Address,AddressData> BlockingWatcher::addressData;
 
 // Signal handler for SIGHUP
 extern "C" {
@@ -147,7 +147,7 @@ static void updateWatchers(const ConfFile *oldConfig,
       }
     }
     // We didn't manage to re-use an existing watcher
-    newWatchers.push_back(new BanWatcher(newConfig->files[i]));
+    newWatchers.push_back(new BlockingWatcher(newConfig->files[i]));
     // Make the new watcher's FD nonblocking (if it has one)
     fd = newWatchers[i]->pollfd(limit);
     if(fd >= 0)
