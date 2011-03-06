@@ -2,7 +2,8 @@ Source: blockad
 Maintainer: Richard Kettlewell <rjk@greenend.org.uk>
 Section: admin
 Priority: extra
-Standards-Version: 3.8.1.0
+Standards-Version: 3.9.1.0
+Vcs-Git: git://git.chiark.greenend.org.uk/~richardk/blockad.git
 
 Package: blockad
 Architecture: any
