@@ -1,5 +1,5 @@
 //
-// Copyright © 2011 Richard Kettlewell
+// Copyright © 2011, 2012 Richard Kettlewell
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,11 +18,12 @@
 #include "Watcher.h"
 #include <cerrno>
 #include <cstdio>
+#include <unistd.h>
 
 class MyWatcher: public Watcher {
 public:
   MyWatcher(const std::string &path): Watcher(path) {}
-  
+
   void processLine(const std::string &line) {
     printf("%s", line.c_str());
     if(line.find('\n') == std::string::npos)

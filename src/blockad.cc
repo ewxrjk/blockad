@@ -1,5 +1,5 @@
 //
-// Copyright © 2011 Richard Kettlewell
+// Copyright © 2011, 2012 Richard Kettlewell
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include "log.h"
 #include "utils.h"
 #include <sys/select.h>
+#include <unistd.h>
 #include <cerrno>
 #include <cstdlib>
 #include <csignal>

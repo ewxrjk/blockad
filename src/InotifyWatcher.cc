@@ -1,5 +1,5 @@
 //
-// Copyright © 2011 Richard Kettlewell
+// Copyright © 2011, 2012 Richard Kettlewell
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <sys/inotify.h>
 #include <cerrno>
 #include <cstdio>
+#include <unistd.h>
 #include "log.h"
 
 InotifyWatcher::InotifyWatcher(const std::string &path_arg,
