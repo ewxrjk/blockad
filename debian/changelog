@@ -1,6 +1,17 @@
-blockad (0.1.DEV) unstable; urgency=low
+blockad (0.2) unstable; urgency=low
 
-  * Development branch.
+  * Release 0.2
+  * Platforms without inotify are supported.
+  * It is now possible to block by appending to /etc/hosts.deny as well as
+    with iptables.
+  * Extra logfile patterns have been added.
+  * Logging has been improved.
 
- -- Richard Kettlewell <rjk@greenend.org.uk>  Sat, 26 Feb 2011 20:42:55 +0000
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sun, 06 Mar 2011 11:21:46 +0000
+
+banjammer (0.1) unstable; urgency=low
+
+  * Release 0.1
+
+ -- Richard Kettlewell <rjk@greenend.org.uk>  Sun, 27 Feb 2011 10:50:41 +0000
 
