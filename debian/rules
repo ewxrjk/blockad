@@ -16,6 +16,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# Use Debian build flag
+CPPFLAGS:=$(shell dpkg-buildflags --get CPPFLAGS)
+CFLAGS:=$(shell dpkg-buildflags --get CFLAGS)
+CXXFLAGS:=$(shell dpkg-buildflags --get CXXFLAGS)
+LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
+export CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+
 # Options to configure.  This can be overridden by the caller if necessary.
 CONFIGURE=--prefix=/usr --enable-silent-rules
 
