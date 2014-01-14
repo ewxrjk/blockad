@@ -28,6 +28,10 @@
 
 set -e
 
+if test -e /lib/lsb/init-functions; then
+  . /lib/lsb/init-functions
+fi
+
 # What to run
 DAEMON=/usr/sbin/blockad
 PIDFILE=/var/run/blockad.pid
