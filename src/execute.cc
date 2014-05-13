@@ -1,5 +1,5 @@
 //
-// Copyright © 2011, 2012 Richard Kettlewell
+// Copyright © 2011, 2012, 2014 Richard Kettlewell
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cassert>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -40,6 +41,7 @@ int execute(const char *const *argv) {
   int ws, p[2] = { -1, -1 };
   pid_t pid = -1;
   
+  assert(argv[0] != NULL);
   try {
     if(debugging) {
       std::string cmd;
