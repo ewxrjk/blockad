@@ -1,5 +1,5 @@
 #
-# Copyright © 2011, 2013 Richard Kettlewell
+# Copyright © 2011, 2013, 2015 Richard Kettlewell
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ AC_CANONICAL_HOST
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_RANLIB
+AM_PROG_AR
 AC_LANG([C++])
 
 # Checks for libraries.
