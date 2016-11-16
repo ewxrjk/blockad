@@ -17,7 +17,7 @@
 AC_PREREQ([2.61])
 AC_INIT([blockad], [0.2], [rjk@greenend.org.uk])
 AC_CONFIG_AUX_DIR([config.aux])
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 AC_CONFIG_SRCDIR([src/Watcher.h])
 AC_CONFIG_HEADER([config.h])
