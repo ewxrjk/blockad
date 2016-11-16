@@ -49,7 +49,7 @@ AC_CHECK_FUNCS([strerror])
 if test "x$GXX" = xyes; then
   CXXFLAGS="$CXXFLAGS -Wall -W -Werror -Wpointer-arith -Wwrite-strings"
   AS_CASE([$host],
-    [*-apple-darwin*], [CXX="$CXXFLAGS -Wno-deprecated-declarations"])
+    [*-apple-darwin*], [CXXFLAGS="$CXXFLAGS -Wno-deprecated-declarations"])
 fi
 
 AC_OUTPUT([Makefile src/Makefile tests/Makefile])
