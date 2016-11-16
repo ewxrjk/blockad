@@ -47,9 +47,9 @@ AC_CHECK_FUNCS([strerror])
 
 # Enable GCC warnings
 if test "x$GXX" = xyes; then
-  CXX="$CXX -Wall -W -Werror -Wpointer-arith -Wwrite-strings"
+  CXXFLAGS="$CXXFLAGS -Wall -W -Werror -Wpointer-arith -Wwrite-strings"
   AS_CASE([$host],
-    [*-apple-darwin*], [CXX="$CXX -Wno-deprecated-declarations"])
+    [*-apple-darwin*], [CXX="$CXXFLAGS -Wno-deprecated-declarations"])
 fi
 
 AC_OUTPUT([Makefile src/Makefile tests/Makefile])
