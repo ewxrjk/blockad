@@ -19,6 +19,8 @@ config.aux
 tests/watch-results
 tests/conftest
 tests/addrtest
+tests/*.log
+tests/*.trs
 src/blockad
 debian/files
 debian/substvars.*
