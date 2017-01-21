@@ -34,6 +34,10 @@ ConfFile::ConfFile(const std::string &path_):
   parse();
 }
 
+ConfFile::~ConfFile() {
+  delete block;
+}
+
 void ConfFile::parse() {
   StdioFile f(path, "r");
   std::string line;

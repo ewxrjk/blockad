@@ -34,6 +34,8 @@ public:
   // Read the config file
   ConfFile(const std::string &path);
 
+  ~ConfFile();
+
   // Base class for configuration file errors
   class Error: public std::runtime_error {
   public:
