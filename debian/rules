@@ -103,7 +103,7 @@ pkg-blockad: build
 	dpkg --build debian/blockad ..
 
 clean:
-	if test -f Makefile; then $(MAKE) distclean; fi
+	-if test -f Makefile; then $(MAKE) distclean; fi
 	rm -f config.cache
 	rm -f debian/files
 	rm -f debian/substvars.*
