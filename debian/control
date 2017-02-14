@@ -9,7 +9,7 @@ Package: blockad
 Architecture: any
 Section: admin
 Priority: extra
-Depends: iptables,${shlibs:Depends}
+Depends: iptables,${shlibs:Depends},lsb-base (>=3.0-6)
 Description: Block persistent hacking attempts
  Monitors logfiles and uses the kernel's firewall to block
  persistent hacking attempts.
