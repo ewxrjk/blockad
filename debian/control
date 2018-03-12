@@ -1,7 +1,7 @@
 Source: blockad
 Maintainer: Richard Kettlewell <rjk@greenend.org.uk>
 Section: admin
-Priority: extra
+Priority: optional
 Standards-Version: 3.9.1.0
 Vcs-Git: git://git.chiark.greenend.org.uk/~richardk/blockad.git
 

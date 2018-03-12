@@ -12,6 +12,7 @@ config.h.in
 config.log
 config.status
 configure
+src/.dirstamp
 stamp-h1
 tests/watchfile
 tests/regtest
@@ -28,3 +29,4 @@ debian/blockad
 INSTALL
 *.tar.gz
 *.deb
+
