@@ -118,7 +118,7 @@ void AddressPattern::assign(const std::string &s) {
     if(n < maskBits / 8)
       mask.s6_addr[n] = 0xFF;
     else if(n == maskBits / 8)
-      mask.s6_addr[n] = 0xFF << (8 - (maskBits % 8));
+      mask.s6_addr[n] = (uint8_t)(0xFF << (8 - (maskBits % 8)));
     else
       mask.s6_addr[n] = 0;
   }

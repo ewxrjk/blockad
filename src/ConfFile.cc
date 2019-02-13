@@ -230,7 +230,7 @@ size_t ConfFile::parseString(const std::string &line,
           if(value > 255)
             throw SyntaxError(this, "hexadeciaml escape sequence out of range");
         }
-        bit += value;
+        bit += (unsigned char)value;
         break;
       }
       case '0': case '1': case '2': case '3':
@@ -243,7 +243,7 @@ size_t ConfFile::parseString(const std::string &line,
           }
           if(value > 255)
             throw SyntaxError(this, "octal escape sequence out of range");
-          bit += value;
+          bit += (unsigned char)value;
           break;
         }
         // TODO \uNNNN and \UNNNNNNNN would be nice
