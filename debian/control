@@ -8,7 +8,7 @@ Vcs-Git: git://git.chiark.greenend.org.uk/~richardk/blockad.git
 Package: blockad
 Architecture: any
 Section: admin
-Priority: extra
+Priority: optional
 Depends: iptables,${shlibs:Depends},lsb-base (>=3.0-6)
 Description: Block persistent hacking attempts
  Monitors logfiles and uses the kernel's firewall to block
