@@ -18,5 +18,5 @@ SUBDIRS=src tests
 EXTRA_DIST=examples/blockad.conf examples/blockad.init .gitignore	\
 debian/changelog debian/conffiles.blockad debian/control		\
 debian/copyright debian/rules debian/postinst.blockad			\
-debian/prerm.blockad debian/postrm.blockad dist
+debian/prerm.blockad debian/postrm.blockad scripts/dist
 
