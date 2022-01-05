@@ -20,6 +20,7 @@ export PATH=".:tests:${PATH}"
 
 rm -f WatchMe watch-results
 
+# watchfile is like tail -f
 watchfile WatchMe > watch-results &
 pid=$!
 
@@ -29,27 +30,44 @@ sleep 1                         # allow watchfile to start up
 
 echo one > WatchMe
 echo two >> WatchMe
+echo sleeping...
 sleep 1
+diff -U20 ${srcdir:-.}/watch-expect-1 watch-results
 
+echo renaming...
 mv WatchMe DontWatchMe
+echo sleeping...
 sleep 1
+diff -U20 ${srcdir:-.}/watch-expect-2 watch-results
 
 echo three >> DontWatchMe
 
 echo four > WatchMe
 echo five >> WatchMe
+echo sleeping...
 sleep 1
+diff -U20 ${srcdir:-.}/watch-expect-3 watch-results
 
+echo renaming back...
 mv DontWatchMe WatchMe
+echo sleeping...
 sleep 1
+diff -U20 ${srcdir:-.}/watch-expect-4 watch-results
 
+echo redirecting...
 exec 3>>WatchMe
+echo removing...
 rm -f WatchMe
+echo sleeping...
 sleep 1
+diff -U20 ${srcdir:-.}/watch-expect-5 watch-results # trouble: intermittently get an extra one two three
 
 echo six >&3
 
+echo sleeping...
 sleep 1                         # allow watchfile to flush buffers
-kill ${pid}
+diff -U20 ${srcdir:-.}/watch-expect-6 watch-results
 
-diff -u ${srcdir:-.}/watch-expect watch-results
+echo killing...
+kill ${pid}
+diff -U20 ${srcdir:-.}/watch-expect-7 watch-results
