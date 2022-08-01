@@ -18,6 +18,7 @@
 #include "Watcher.h"
 #include "PollingWatcher.h"
 #include <cerrno>
+#include <ctime>
 
 PollingWatcher::PollingWatcher(const std::string &path, Watcher *watcher):
     WatcherImplementation(path, watcher), next(time(NULL)), dev(-1), ino(-1) {

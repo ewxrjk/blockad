@@ -28,6 +28,7 @@
 #include <cerrno>
 #include <cstdlib>
 #include <csignal>
+#include <ctime>
 #include <map>
 #include <deque>
 
