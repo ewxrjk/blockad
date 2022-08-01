@@ -19,8 +19,7 @@
 
 // Regex ----------------------------------------------------------------------
 
-Regex::Regex(): creg(NULL) {
-}
+Regex::Regex(): creg(NULL) {}
 
 Regex::Regex(const std::string &regex, int cflags, bool basic): creg(NULL) {
   compile(regex, cflags, basic);
@@ -59,10 +58,8 @@ Regex::~Regex() {
     delete creg;
 }
 
-int Regex::execute(const std::string &s,
-                   std::vector<regmatch_t> &matches,
-                   int eflags,
-                   size_t nmatch) const {
+int Regex::execute(const std::string &s, std::vector<regmatch_t> &matches,
+                   int eflags, size_t nmatch) const {
   matches.resize(nmatch);
   int rc = regexec(&creg->reg, s.c_str(), nmatch, &matches[0], eflags);
   // Strip any unused matches table entries
@@ -73,8 +70,7 @@ int Regex::execute(const std::string &s,
   return rc;
 }
 
-int Regex::execute(const std::string &s,
-                   int eflags) const {
+int Regex::execute(const std::string &s, int eflags) const {
   if(creg->cflags & REG_NOSUB)
     return regexec(&creg->reg, s.c_str(), 0, NULL, eflags);
   else {
@@ -93,7 +89,6 @@ std::string Regex::Error::format(int rc, const regex_t *preg) {
   delete[] buffer;
   return r;
 }
- 
 
 /*
 Local Variables:

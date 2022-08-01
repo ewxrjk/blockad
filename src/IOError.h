@@ -23,18 +23,14 @@
 // Thrown if any IO error occurs
 class IOError: public std::runtime_error {
 public:
-  IOError(const std::string &what,
-          const std::string &path,
-          int errno_value);
-  IOError(const std::string &what,
-          int errno_value);
+  IOError(const std::string &what, const std::string &path, int errno_value);
+  IOError(const std::string &what, int errno_value);
 };
 
 // Thrown if any system error occurs
 class SystemError: public std::runtime_error {
 public:
-  SystemError(const std::string &what,
-          int errno_value);
+  SystemError(const std::string &what, int errno_value);
 };
 
 #endif /* IOERROR_H */

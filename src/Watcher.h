@@ -23,9 +23,9 @@
 #include <cstdio>
 
 #if HAVE_SYS_INOTIFY_H
-# define WATCHER InotifyWatcher
+#define WATCHER InotifyWatcher
 #else
-# define WATCHER PollingWatcher
+#define WATCHER PollingWatcher
 #endif
 
 class Watcher;
@@ -33,26 +33,24 @@ class Watcher;
 // Base class for watcher implementations
 class WatcherImplementation {
 public:
-  WatcherImplementation(const std::string &path_,
-                        Watcher *watcher_): path(path_),
-                                            fp(NULL),
-                                            watcher(watcher_) {
-  }
+  WatcherImplementation(const std::string &path_, Watcher *watcher_):
+      path(path_), fp(NULL), watcher(watcher_) {}
   virtual ~WatcherImplementation();
   virtual int pollfd(time_t &limit) const = 0;
   virtual void work() = 0;
   inline void processLine(const std::string &line);
+
 protected:
   const std::string path;
   FILE *fp;
-  std::string line;                     // line read so far
+  std::string line; // line read so far
 
   virtual void closeFile() = 0;
 
   static std::string getBaseName(const std::string &); // get base name
-  static std::string getDirName(const std::string &); // get directory name
+  static std::string getDirName(const std::string &);  // get directory name
 
-  void readLines();                     // read lines from the watch file
+  void readLines(); // read lines from the watch file
 private:
   Watcher *watcher;
 };
@@ -65,11 +63,15 @@ public:
   virtual ~Watcher();
 
   // Return the file descriptor to poll
-  int pollfd(time_t &limit) const { return impl->pollfd(limit); }
+  int pollfd(time_t &limit) const {
+    return impl->pollfd(limit);
+  }
 
   // Do some work.  Call this when pollfd() polls readable, or just
   // repeatedly if you didn't make it nonblocking.
-  void work() { impl->work(); }
+  void work() {
+    impl->work();
+  }
 
   // Passed a new line from the watched file.  line includes the trailing '\n',
   // if there was one; there may not be if a file is finished off without a
@@ -79,11 +81,8 @@ public:
   // Base class for Watcher errors
   class Error: public std::runtime_error {
   public:
-    Error(const std::string &s, int e = 0): 
-      std::runtime_error(e ? s + ": " + strerror(e)
-                           : s),
-      errno_value(e) {
-    }
+    Error(const std::string &s, int e = 0):
+        std::runtime_error(e ? s + ": " + strerror(e) : s), errno_value(e) {}
 
     // The errno value associated with the error, or 0.
     const int errno_value;
@@ -95,14 +94,14 @@ public:
   // it may not be very useful.
   class IOError: public Error {
   public:
-    IOError(const std::string &s, int e = 0): Error(s, e) { }
+    IOError(const std::string &s, int e = 0): Error(s, e) {}
   };
 
   // Exception thrown if something goes wrong with the infrastructure.  After
   // SystemError is thrown, the Watcher is probably broken beyond repair.
   class SystemError: public Error {
   public:
-    SystemError(const std::string &s, int e = 0): Error(s, e) { }
+    SystemError(const std::string &s, int e = 0): Error(s, e) {}
   };
 
 private:

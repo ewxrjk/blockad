@@ -26,11 +26,9 @@
 
 // ConfFile -------------------------------------------------------------------
 
-ConfFile::ConfFile(const std::string &path_): 
-  rate_max(rate_max_default),
-  rate_interval(rate_interval_default),
-  block(BlockMethodType::find(block_default)->create()),
-  path(path_) {
+ConfFile::ConfFile(const std::string &path_):
+    rate_max(rate_max_default), rate_interval(rate_interval_default),
+    block(BlockMethodType::find(block_default)->create()), path(path_) {
   parse();
 }
 
@@ -60,10 +58,10 @@ void ConfFile::parseLine(const std::string &line) {
   std::vector<std::string> bits;
 
   if(!splitLine(line, bits))
-    return;                             // skip blank lines
+    return; // skip blank lines
   if(bits[0] == "watch") {
     // watch PATH
-      
+
     // Syntax check
     if(bits.size() < 2)
       throw SyntaxError(this, "missing argument to 'watch'");
@@ -90,7 +88,9 @@ void ConfFile::parseLine(const std::string &line) {
       errno = 0;
       c = strtol(bits[2].c_str(), &end, 10);
       if(errno)
-        throw SyntaxError(this, std::string("invalid capture argument to 'address': ") + strerror(errno));
+        throw SyntaxError(this,
+                          std::string("invalid capture argument to 'address': ")
+                              + strerror(errno));
       if(end == bits[2].c_str() || *end || c < 1 || c > INT_MAX)
         throw SyntaxError(this, "invalid capture argument to 'address'");
     } else
@@ -109,7 +109,7 @@ void ConfFile::parseLine(const std::string &line) {
     patterns.push_back(Match(r, c));
   } else if(bits[0] == "rate") {
     // rate COUNT/[minute|hour|day|week]
-      
+
     // Syntax check
     if(bits.size() < 2)
       throw SyntaxError(this, "missing argument to 'rate'");
@@ -121,14 +121,14 @@ void ConfFile::parseLine(const std::string &line) {
     char *end;
     long count = strtol(bits[1].c_str(), &end, 10);
     if(errno)
-      throw SyntaxError(this, std::string("invalid count for 'rate': ") + strerror(errno));
+      throw SyntaxError(this, std::string("invalid count for 'rate': ")
+                                  + strerror(errno));
     if(end == bits[1].c_str() || count < 1 || (unsigned long)count > UINT_MAX)
       throw SyntaxError(this, "invalid count for 'rate'");
     rate_max = count;
 
     // Extract the interval
-    if(!strcmp(end, "/minute")
-       || !strcmp(end, "/min"))
+    if(!strcmp(end, "/minute") || !strcmp(end, "/min"))
       rate_interval = 60;
     else if(!strcmp(end, "/hour"))
       rate_interval = 60 * 60;
@@ -169,12 +169,12 @@ size_t ConfFile::splitLine(const std::string &line,
   while(pos < line.size()) {
     char ch = line.at(pos++);
     switch(ch) {
-    case '#':                   // comment marker
+    case '#': // comment marker
       pos = line.size();
       break;
-    case ' ':                   // skip blanks
+    case ' ': // skip blanks
       break;
-    case '"':                   // two kinds of quoted string
+    case '"': // two kinds of quoted string
     case '\'':
       pos = parseString(line, pos, bit, ch);
       bits.push_back(bit);
@@ -191,16 +191,14 @@ size_t ConfFile::splitLine(const std::string &line,
   return bits.size();
 }
 
-size_t ConfFile::parseString(const std::string &line,
-                             size_t pos,
-                             std::string &bit,
-                             char q) {
+size_t ConfFile::parseString(const std::string &line, size_t pos,
+                             std::string &bit, char q) {
   bit.clear();
   while(pos < line.size()) {
     char ch = line.at(pos++);
     // Check for close quote
     if(ch == q)
-      return pos;               // done
+      return pos; // done
     if(ch != '\\' || q == '\'') {
       // Unescaped character; for '' strings, all characters count as
       // unescaped.
@@ -218,7 +216,10 @@ size_t ConfFile::parseString(const std::string &line,
       case 'v': bit += '\v'; break;
       case 'f': bit += '\f'; break;
       case 'r': bit += '\r'; break;
-      case '\'': case '"': case '\\': case '?': bit += ch; break;
+      case '\'':
+      case '"':
+      case '\\':
+      case '?': bit += ch; break;
       case 'x': {
         int value = 0;
         while(pos < line.size()) {
@@ -233,22 +234,27 @@ size_t ConfFile::parseString(const std::string &line,
         bit += (char)value;
         break;
       }
-      case '0': case '1': case '2': case '3':
-      case '4': case '5': case '6': case '7': {
-          int value = ch - '0';
-          if(pos < line.size() && line.at(pos) >= '0' && line.at(pos) <= '7') {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7': {
+        int value = ch - '0';
+        if(pos < line.size() && line.at(pos) >= '0' && line.at(pos) <= '7') {
+          value = value * 8 + line.at(pos++) - '0';
+          if(pos < line.size() && line.at(pos) >= '0' && line.at(pos) <= '7')
             value = value * 8 + line.at(pos++) - '0';
-            if(pos < line.size() && line.at(pos) >= '0' && line.at(pos) <= '7')
-              value = value * 8 + line.at(pos++) - '0';
-          }
-          if(value > 255)
-            throw SyntaxError(this, "octal escape sequence out of range");
-          bit += (char)value;
-          break;
         }
+        if(value > 255)
+          throw SyntaxError(this, "octal escape sequence out of range");
+        bit += (char)value;
+        break;
+      }
         // TODO \uNNNN and \UNNNNNNNN would be nice
-      default:
-        throw SyntaxError(this, "unrecognized escape sequence");
+      default: throw SyntaxError(this, "unrecognized escape sequence");
       }
     }
   }
@@ -258,9 +264,12 @@ size_t ConfFile::parseString(const std::string &line,
 }
 
 int ConfFile::decodeHex(char ch) {
-  if(ch >= '0' && ch <= '9') return ch - '0';
-  else if(ch >= 'a' && ch <= 'f') return ch - ('a' - 10);
-  else return ch - ('A' - 10);
+  if(ch >= '0' && ch <= '9')
+    return ch - '0';
+  else if(ch >= 'a' && ch <= 'f')
+    return ch - ('a' - 10);
+  else
+    return ch - ('A' - 10);
 }
 
 const char ConfFile::block_default[] = "iptables";

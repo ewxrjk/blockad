@@ -48,7 +48,6 @@ struct AddressData {
   AddressData(): blocked(false) {}
 };
 
-
 // A logfile watcher that knows how to block things
 class BlockingWatcher: public Watcher {
 public:
@@ -61,9 +60,9 @@ public:
       const ConfFile::Match &m = config->patterns[i];
       if(m.regex.execute(line, matches) == 0) {
         // We got one
-        std::string address(line, 
-                            matches[m.capture].rm_so,
-                            matches[m.capture].rm_eo - matches[m.capture].rm_so);
+        std::string address(line, matches[m.capture].rm_so,
+                            matches[m.capture].rm_eo
+                                - matches[m.capture].rm_so);
         detectedAddress(Address(address));
       }
     }
@@ -71,7 +70,7 @@ public:
 
 private:
   // Global store of data about addresses that have been detected
-  static std::map<Address,AddressData> addressData;
+  static std::map<Address, AddressData> addressData;
 
   // Called when an address is detected
   void detectedAddress(const Address &a) {
@@ -114,21 +113,20 @@ private:
   }
 };
 
-std::map<Address,AddressData> BlockingWatcher::addressData;
+std::map<Address, AddressData> BlockingWatcher::addressData;
 
 // Signal handler for SIGHUP
 extern "C" {
-  static void sighup_handler(int sig) {
-    int save_errno = errno;
-    int rc = write(signal_pipe[1], &sig, 1);
-    (void) rc;
-    errno = save_errno;
-  }
+static void sighup_handler(int sig) {
+  int save_errno = errno;
+  int rc = write(signal_pipe[1], &sig, 1);
+  (void)rc;
+  errno = save_errno;
+}
 }
 
 // Update the watchers array, re-use existing watchers if possible.
-static void updateWatchers(const ConfFile *oldConfig,
-                           const ConfFile *newConfig,
+static void updateWatchers(const ConfFile *oldConfig, const ConfFile *newConfig,
                            std::vector<Watcher *> &oldWatchers) {
   size_t i, j;
   std::vector<Watcher *> newWatchers;
@@ -138,8 +136,7 @@ static void updateWatchers(const ConfFile *oldConfig,
     // Try and re-use the existing watcher
     if(oldConfig) {
       for(j = 0; j < oldConfig->files.size(); ++j)
-        if(newConfig->files[i] == oldConfig->files[i]
-           && oldWatchers[j] != NULL)
+        if(newConfig->files[i] == oldConfig->files[i] && oldWatchers[j] != NULL)
           break;
       if(j < oldConfig->files.size()) {
         newWatchers.push_back(oldWatchers[j]);
@@ -170,20 +167,11 @@ int main(int argc, char **argv) {
   // Parse command-line options
   while((n = getopt(argc, argv, "dfc:P:")) >= 0) {
     switch(n) {
-    case 'd':
-      debugging = true;
-      break;
-    case 'f':
-      background = false;
-      break;
-    case 'c':
-      conffile = optarg;
-      break;
-    case 'P':
-      pidfile = optarg;
-      break;
-    default:
-      exit(1);
+    case 'd': debugging = true; break;
+    case 'f': background = false; break;
+    case 'c': conffile = optarg; break;
+    case 'P': pidfile = optarg; break;
+    default: exit(1);
     }
   }
   try {
@@ -203,8 +191,7 @@ int main(int argc, char **argv) {
     }
     if(pidfile) {
       FILE *fp = fopen(pidfile, "w");
-      if(!fp
-         || fprintf(fp, "%lu\n", (unsigned long)getpid()) < 0
+      if(!fp || fprintf(fp, "%lu\n", (unsigned long)getpid()) < 0
          || fclose(fp) < 0) {
         error("%s: %s", pidfile, strerror(errno));
         exit(-1);

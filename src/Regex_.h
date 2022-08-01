@@ -47,14 +47,11 @@ public:
   // Execute the regex.  Returns 0 for a match and REG_NOMATCH for a match
   // failure.  matches is resized to be nmatch for the call, and then resized
   // to strip any trailing unused entries on success.
-  int execute(const std::string &s,
-              std::vector<regmatch_t> &matches,
-              int eflags = 0,
-              size_t nmatch = default_nmatches) const;
+  int execute(const std::string &s, std::vector<regmatch_t> &matches,
+              int eflags = 0, size_t nmatch = default_nmatches) const;
 
   // Execute the regex but do not capture.
-  int execute(const std::string &s,
-              int eflags = 0) const;
+  int execute(const std::string &s, int eflags = 0) const;
 
   // Simple match test
   inline bool matches(const std::string &s, int eflags = 0) const {
@@ -62,13 +59,16 @@ public:
   }
 
   // Count number of captures
-  inline size_t captures() const { return creg->reg.re_nsub; }
+  inline size_t captures() const {
+    return creg->reg.re_nsub;
+  }
 
   // Base class for Regex errors
   class Error: public std::runtime_error {
   public:
     Error(const std::string &s): std::runtime_error(s) {}
     Error(int rc, const regex_t *preg): std::runtime_error(format(rc, preg)) {}
+
   private:
     static std::string format(int rc, const regex_t *preg);
   };
@@ -85,7 +85,10 @@ private:
   // reference count in the constructors, operator= and destructor of Regex.
   struct CompiledRegex {
     CompiledRegex(int cflags): refcount(1), cflags(cflags), compiled(false) {}
-    ~CompiledRegex() { if(compiled) regfree(&reg); }
+    ~CompiledRegex() {
+      if(compiled)
+        regfree(&reg);
+    }
     int refcount;
     regex_t reg;
     int cflags;

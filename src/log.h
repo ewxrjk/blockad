@@ -18,11 +18,11 @@
 #define LOG_H
 
 // Log a debug message, if debugging is enabled
-#define debug(...) do {                         \
-  if(debugging)                                 \
-    debug_(__VA_ARGS__);                        \
-} while(0)
-  
+#define debug(...)                                                             \
+  do {                                                                         \
+    if(debugging)                                                              \
+      debug_(__VA_ARGS__);                                                     \
+  } while(0)
 
 // Implementation of debug()
 void debug_(const char *format, ...);

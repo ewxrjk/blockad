@@ -26,20 +26,17 @@
 #include <unistd.h>
 #include "log.h"
 
-InotifyWatcher::InotifyWatcher(const std::string &path_arg,
-                               Watcher *watcher): 
-  WatcherImplementation(path_arg, watcher),
-  base(getBaseName(path)),
-  dir(getDirName(path)),
-  ifd(-1),
-  file_wd(-1),
-  dir_wd(-1) {
+InotifyWatcher::InotifyWatcher(const std::string &path_arg, Watcher *watcher):
+    WatcherImplementation(path_arg, watcher), base(getBaseName(path)),
+    dir(getDirName(path)), ifd(-1), file_wd(-1), dir_wd(-1) {
   // Get an inotify FD
   if((ifd = inotify_init()) < 0)
     throw Watcher::SystemError("inotify_init", errno);
   // Watch the containing directory
   if((dir_wd = inotify_add_watch(ifd, dir.c_str(),
-                                 IN_CREATE|IN_DELETE|IN_MOVED_FROM|IN_MOVED_TO)) < 0)
+                                 IN_CREATE | IN_DELETE | IN_MOVED_FROM
+                                     | IN_MOVED_TO))
+     < 0)
     throw Watcher::SystemError("inotify_add_watch for " + dir, errno);
   // Try to open the file.  This will add file_wd if it exists.
   openFile();
@@ -69,10 +66,9 @@ void InotifyWatcher::openFile() {
     } else {
       // If we did open it then detect changes to it.
       // (But see below concerning IN_*_SELF.)
-      if((file_wd = inotify_add_watch(ifd, path.c_str(),
-                                      IN_MODIFY
-                                      |IN_MOVE_SELF
-                                      |IN_DELETE_SELF)) < 0)
+      if((file_wd = inotify_add_watch(
+              ifd, path.c_str(), IN_MODIFY | IN_MOVE_SELF | IN_DELETE_SELF))
+         < 0)
         throw Watcher::SystemError("inotify_add_watch for " + path, errno);
     }
   }
@@ -114,13 +110,13 @@ void InotifyWatcher::work() {
   char *ptr = buffer;
   while(n > 0) {
     // Make sure we have a whole event
-    if((size_t)n < sizeof (struct inotify_event))
+    if((size_t)n < sizeof(struct inotify_event))
       throw Watcher::SystemError("short read from inotify fd");
     const struct inotify_event &event = *(const struct inotify_event *)ptr;
     const size_t total = sizeof event + event.len;
     if((size_t)n < total)
       throw Watcher::SystemError("short read from inotify fd");
-    
+
     // See if the file contents changed.
     if(event.wd == file_wd) {
       // Read as much as we can from the file, whatever happened
@@ -129,15 +125,13 @@ void InotifyWatcher::work() {
       // of it.  Note that we don't seem to get (at least) IN_DELETE_SELF
       // reliably!  However we handle the cases that ought to produce it below
       // in the dir_wd checking too.
-      if(event.mask & (IN_MOVE_SELF|IN_DELETE_SELF)) {
+      if(event.mask & (IN_MOVE_SELF | IN_DELETE_SELF)) {
         // Close the file.
         closeFile();
       }
     }
 
-    if(event.wd == dir_wd
-       && event.len
-       && !strcmp(event.name, base.c_str())) {
+    if(event.wd == dir_wd && event.len && !strcmp(event.name, base.c_str())) {
       // The file has been newly created or replaced by another file.  Close
       // the old version (if open).
       closeFile();

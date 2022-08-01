@@ -26,10 +26,8 @@
 // Convert s[pos,pos+n) to addr.  Return 4 or 6 depending on the syntax used
 // (the result is always a possibly v4-mapped IPv6 address.  Returns -1 for an
 // invalid address (the exception is raised in the derived class).
-int AddressBase::convert(struct in6_addr &addr,
-                         const std::string &ss, 
-                         std::string::size_type pos,
-                         std::string::size_type n) {
+int AddressBase::convert(struct in6_addr &addr, const std::string &ss,
+                         std::string::size_type pos, std::string::size_type n) {
   if(n > ss.size() - pos)
     n = ss.size() - pos;
   std::string s(ss, pos, n);
@@ -71,8 +69,7 @@ std::string Address::as4() const {
 
 std::string Address::as6() const {
   char buffer[INET6_ADDRSTRLEN];
-  return inet_ntop(AF_INET6, 
-                   address.s6_addr, buffer, sizeof buffer);
+  return inet_ntop(AF_INET6, address.s6_addr, buffer, sizeof buffer);
 }
 
 std::string Address::asString() const {

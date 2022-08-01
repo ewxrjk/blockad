@@ -24,14 +24,7 @@ bool debugging;
 
 static void stderrlog(int pri, const char *fmt, va_list ap) {
   static const char *const pritab[] = {
-    "EMERG",
-    "ALERT",
-    "CRIT",
-    "ERROR",
-    "WARNING",
-    "NOTICE",
-    "INFO",
-    "DEBUG",
+      "EMERG", "ALERT", "CRIT", "ERROR", "WARNING", "NOTICE", "INFO", "DEBUG",
   };
   fprintf(stderr, "%s: ", pritab[pri]);
   vfprintf(stderr, fmt, ap);

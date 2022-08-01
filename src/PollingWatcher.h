@@ -22,11 +22,11 @@
 
 class PollingWatcher: public WatcherImplementation {
 public:
-  PollingWatcher(const std::string &path,
-                 Watcher *watcher);
+  PollingWatcher(const std::string &path, Watcher *watcher);
   ~PollingWatcher();
   int pollfd(time_t &limit) const;
   void work();
+
 private:
   time_t next;
   dev_t dev;

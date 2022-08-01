@@ -71,7 +71,7 @@ int main() {
   assert(p.matches("2001:470:1f09:11ed::12"));
   assert(p.matches("2001:470:1f09:11ed:219:d1ff:fe04:d176"));
   assert(!p.matches("fe80::219:d1ff:fe04:d176"));
-  return 0;  
+  return 0;
 }
 
 /*

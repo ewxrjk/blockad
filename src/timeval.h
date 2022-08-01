@@ -21,17 +21,17 @@
 #include <limits.h>
 
 #if SIZEOF_TIME_T == SIZEOF_INT
-# define TIME_MAX INT_MAX
+#define TIME_MAX INT_MAX
 #elif SIZEOF_TIME_T == SIZEOF_LONG
-# define TIME_MAX LONG_MAX
+#define TIME_MAX LONG_MAX
 #elif SIZEOF_TIME_T == SIZEOF_LONG_LONG
-# define TIME_MAX LLONG_MAX
+#define TIME_MAX LLONG_MAX
 #else
-# error cannot figure out TIME_MAX
+#error cannot figure out TIME_MAX
 #endif
 
 inline struct timeval operator-(const struct timeval &a,
-				const struct timeval &b) {
+                                const struct timeval &b) {
   struct timeval r;
   r.tv_sec = a.tv_sec - b.tv_sec;
   r.tv_usec = a.tv_usec - b.tv_usec;
@@ -42,16 +42,14 @@ inline struct timeval operator-(const struct timeval &a,
   return r;
 }
 
-inline struct timeval operator-(time_t a,
-				const struct timeval &b) {
+inline struct timeval operator-(time_t a, const struct timeval &b) {
   struct timeval aa;
   aa.tv_sec = a;
   aa.tv_usec = 0;
   return aa - b;
 }
 
-inline bool operator<(const struct timeval &a,
-		      const struct timeval &b) {
+inline bool operator<(const struct timeval &a, const struct timeval &b) {
   if(a.tv_sec < b.tv_sec)
     return true;
   if(a.tv_sec == b.tv_sec && a.tv_usec < b.tv_usec)
@@ -59,15 +57,13 @@ inline bool operator<(const struct timeval &a,
   return false;
 }
 
-inline bool operator<(const struct timeval &a,
-		      time_t b) {
+inline bool operator<(const struct timeval &a, time_t b) {
   if(a.tv_sec < b)
     return true;
   return false;
 }
 
-inline bool operator>=(const struct timeval &a,
-		      time_t b) {
+inline bool operator>=(const struct timeval &a, time_t b) {
   if(a.tv_sec >= b)
     return true;
   return false;

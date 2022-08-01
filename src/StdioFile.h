@@ -36,11 +36,11 @@ public:
   // errors ignored.
   void open(const std::string &path, const std::string &mode = "r");
 
-  void close();                         // throws on error, unlike ~StdioFile()
+  void close(); // throws on error, unlike ~StdioFile()
 
-  int readc();                          // return EOF or char
-  bool readline(std::string &line);     // return true if a line, false at EOF
-  int printf(const char *format, ...);  // formatted output
+  int readc();                         // return EOF or char
+  bool readline(std::string &line);    // return true if a line, false at EOF
+  int printf(const char *format, ...); // formatted output
 private:
   std::string path;
   FILE *fp;

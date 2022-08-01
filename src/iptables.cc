@@ -44,7 +44,7 @@ public:
 class BlockIptablesType: public BlockMethodType {
 public:
   BlockIptablesType(): BlockMethodType("iptables") {}
-  
+
   BlockMethod *create() const {
     return new BlockIptables();
   }

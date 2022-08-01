@@ -22,11 +22,10 @@
 
 // StdioFile ------------------------------------------------------------------
 
-StdioFile::StdioFile(): fp(NULL) {
-}
+StdioFile::StdioFile(): fp(NULL) {}
 
 StdioFile::StdioFile(const std::string &path_, const std::string &mode):
-  path(path_), fp(fopen(path.c_str(), mode.c_str())) {
+    path(path_), fp(fopen(path.c_str(), mode.c_str())) {
   if(!fp)
     throw IOError("opening", path, errno);
 }

@@ -33,17 +33,15 @@ class InvalidAddressPattern: public std::runtime_error {
 public:
   InvalidAddressPattern(): std::runtime_error("Invalid address pattern") {}
   InvalidAddressPattern(const std::string &w):
-    std::runtime_error("Invalid address pattern: " + w) {}
+      std::runtime_error("Invalid address pattern: " + w) {}
 };
 
 // Common functionality for Address and AddressPattern
 class AddressBase {
 public:
-  static int convert(struct in6_addr &addr,
-                     const std::string &s, 
+  static int convert(struct in6_addr &addr, const std::string &s,
                      std::string::size_type pos = 0,
                      std::string::size_type n = std::string::npos);
-  
 };
 
 // An address
@@ -62,21 +60,21 @@ public:
     assign(s);
   }
 
-  inline Address &operator=(const std::string &s) { 
+  inline Address &operator=(const std::string &s) {
     assign(s);
     return *this;
   }
 
   inline bool operator<(const Address &that) const {
-    return memcmp(&address, &that.address, sizeof (struct in6_addr)) < 0;
+    return memcmp(&address, &that.address, sizeof(struct in6_addr)) < 0;
   }
 
   void assign(const std::string &s);
 
-  bool is4() const;                     // true if a V4 address
-  std::string as4() const;              // as V4, or throws
-  std::string as6() const;              // alway as V6
-  std::string asString() const;         // as V4 if possible, else V6
+  bool is4() const;             // true if a V4 address
+  std::string as4() const;      // as V4, or throws
+  std::string as6() const;      // alway as V6
+  std::string asString() const; // as V4 if possible, else V6
 private:
   struct in6_addr address;
 
@@ -93,7 +91,7 @@ public:
 
   // Expects an IPv4 dotted-quad or IPv6 colon-separate address, optionally
   // followed by /N to indicate the size of the network part.
-  inline AddressPattern(const std::string &s) { 
+  inline AddressPattern(const std::string &s) {
     assign(s);
   }
 

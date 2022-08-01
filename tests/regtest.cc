@@ -25,8 +25,8 @@ int main() {
   assert(r1.matches("--- sponspong ---"));
   assert(r1.matches("--- spong --- spong"));
   assert(!r1.matches("--- spon ---"));
-  
-  Regex r2("a+", 0, true);      // basic
+
+  Regex r2("a+", 0, true); // basic
   assert(r2.matches("a+"));
   assert(!r2.matches("a"));
 
@@ -49,6 +49,6 @@ int main() {
   assert(matches[1].rm_eo == 20);
   assert(matches[2].rm_so == 26);
   assert(matches[2].rm_eo == 29);
-  
+
   return 0;
 }

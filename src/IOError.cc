@@ -18,21 +18,15 @@
 #include "IOError.h"
 #include <cstring>
 
-IOError::IOError(const std::string &what,
-                 const std::string &path,
+IOError::IOError(const std::string &what, const std::string &path,
                  int errno_value):
-  std::runtime_error(what + " " + path + ": " + strerror(errno_value)) {
-}
+    std::runtime_error(what + " " + path + ": " + strerror(errno_value)) {}
 
-IOError::IOError(const std::string &what,
-                 int errno_value):
-  std::runtime_error(what + ": " + strerror(errno_value)) {
-}
+IOError::IOError(const std::string &what, int errno_value):
+    std::runtime_error(what + ": " + strerror(errno_value)) {}
 
-SystemError::SystemError(const std::string &what,
-                         int errno_value):
-  std::runtime_error(what + ": " + strerror(errno_value)) {
-}
+SystemError::SystemError(const std::string &what, int errno_value):
+    std::runtime_error(what + ": " + strerror(errno_value)) {}
 
 /*
 Local Variables:

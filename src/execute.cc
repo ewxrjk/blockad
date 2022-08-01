@@ -38,9 +38,9 @@ int execute(const std::vector<std::string> &command) {
 }
 
 int execute(const char *const *argv) {
-  int ws, p[2] = { -1, -1 };
+  int ws, p[2] = {-1, -1};
   pid_t pid = -1;
-  
+
   assert(argv[0] != NULL);
   try {
     if(debugging) {
@@ -60,9 +60,7 @@ int execute(const char *const *argv) {
     switch((pid = fork())) {
     case 0:
       // Plumb in pipe
-      if(dup2(p[1], 1) < 0
-         || dup2(p[1], 2) < 0
-         || close(p[1]) < 0
+      if(dup2(p[1], 1) < 0 || dup2(p[1], 2) < 0 || close(p[1]) < 0
          || close(p[0]) < 0)
         _Exit(-1);
       // Restore signal mask
@@ -74,13 +72,12 @@ int execute(const char *const *argv) {
       execvp(argv[0], (char *const *)argv);
       fprintf(stderr, "executing %s: %s\n", argv[0], strerror(errno));
       _Exit(-1);
-    case -1:
-      throw SystemError("creating subprocess", errno);
+    case -1: throw SystemError("creating subprocess", errno);
     }
     if(close(p[1]) < 0)
       throw IOError("closing read end of pipe", errno);
     p[1] = -1;
-  
+
     // Capture output
     std::string output;
     char buffer[512];
@@ -96,7 +93,7 @@ int execute(const char *const *argv) {
     }
     close(p[0]);
     p[0] = -1;
-  
+
     // Wait for subprocess
     pid_t rpid;
     for(;;) {
@@ -133,7 +130,7 @@ int execute(const char *const *argv) {
       waitpid(pid, NULL, WNOHANG);
     throw;
   }
-  
+
   return ws;
 }
 

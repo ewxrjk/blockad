@@ -32,7 +32,7 @@ public:
   virtual BlockMethod *create() const = 0;
 
 private:
-  static std::map<std::string,const BlockMethodType *> *registry;
+  static std::map<std::string, const BlockMethodType *> *registry;
 };
 
 // Parameterized blockers

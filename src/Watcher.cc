@@ -19,8 +19,7 @@
 #include "InotifyWatcher.h"
 #include "PollingWatcher.h"
 
-Watcher::Watcher(const std::string &path): impl(new WATCHER(path, this)) {
-}
+Watcher::Watcher(const std::string &path): impl(new WATCHER(path, this)) {}
 
 Watcher::~Watcher() {
   delete(impl);

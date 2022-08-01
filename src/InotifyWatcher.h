@@ -22,21 +22,20 @@
 
 class InotifyWatcher: public WatcherImplementation {
 public:
-  InotifyWatcher(const std::string &path,
-                 Watcher *watcher);
+  InotifyWatcher(const std::string &path, Watcher *watcher);
   ~InotifyWatcher();
   int pollfd(time_t &limit) const;
   void work();
+
 private:
-  const std::string base;               // base filename
-  const std::string dir;                // containing directory
-  int ifd;                              // inotify descriptor
-  int file_wd;                          // file watch descriptor or -1
-  int dir_wd;                           // directory watch descriptor
+  const std::string base; // base filename
+  const std::string dir;  // containing directory
+  int ifd;                // inotify descriptor
+  int file_wd;            // file watch descriptor or -1
+  int dir_wd;             // directory watch descriptor
 
-  void openFile();                      // try to ensure the watched file open
-  void closeFile();                     // close the watched file if open
-
+  void openFile();  // try to ensure the watched file open
+  void closeFile(); // close the watched file if open
 };
 #endif
 

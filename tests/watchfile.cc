@@ -30,7 +30,8 @@ public:
       printf(" [no trailing newline]\n");
     fflush(stdout);
     if(ferror(stdout))
-      throw std::runtime_error(std::string("error writing to stdout ") + strerror(errno));
+      throw std::runtime_error(std::string("error writing to stdout ")
+                               + strerror(errno));
   }
 };
 

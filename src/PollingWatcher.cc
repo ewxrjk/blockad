@@ -19,12 +19,8 @@
 #include "PollingWatcher.h"
 #include <cerrno>
 
-PollingWatcher::PollingWatcher(const std::string &path,
-                               Watcher *watcher):
-  WatcherImplementation(path, watcher),
-  next(time(NULL)),
-  dev(-1),
-  ino(-1) {
+PollingWatcher::PollingWatcher(const std::string &path, Watcher *watcher):
+    WatcherImplementation(path, watcher), next(time(NULL)), dev(-1), ino(-1) {
   // Try opening the file
   openFile();
 }
@@ -74,9 +70,7 @@ void PollingWatcher::work() {
   // If the file is open, verify that we're still reading the right one
   if(fp) {
     struct stat sb;
-    if(stat(path.c_str(), &sb) < 0
-       || sb.st_ino != ino
-       || sb.st_dev != dev)
+    if(stat(path.c_str(), &sb) < 0 || sb.st_ino != ino || sb.st_dev != dev)
       closeFile();
   }
   // If the file wasn't open, see if it is now

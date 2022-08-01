@@ -41,24 +41,24 @@ public:
   public:
     Error(const std::string &s): std::runtime_error(s) {}
   };
-  
+
   // Syntax error in configuration file
   class SyntaxError: public Error {
   public:
-    SyntaxError(const ConfFile *cf,
-                const std::string &s): Error(format(cf, s)) {}
-    SyntaxError(const ConfFile *cf,
-                const std::runtime_error &e): Error(format(cf, e.what())) {}
+    SyntaxError(const ConfFile *cf, const std::string &s):
+        Error(format(cf, s)) {}
+    SyntaxError(const ConfFile *cf, const std::runtime_error &e):
+        Error(format(cf, e.what())) {}
+
   private:
-    static std::string format(const ConfFile *cf,
-                              const std::string &s);
+    static std::string format(const ConfFile *cf, const std::string &s);
   };
 
   // A pattern to match
   struct Match {
     Match(const Regex &r, int c): regex(r), capture(c) {}
-    Regex regex;                        // regex to match
-    int capture;                        // capture number
+    Regex regex; // regex to match
+    int capture; // capture number
   };
 
   // Configuration data
@@ -73,17 +73,15 @@ public:
   static const int rate_max_default = 5;
   static const int rate_interval_default = 60 * 60;
   static const char block_default[];
+
 private:
-  std::string path;                     // file that's being read
-  int lineno;                           // current line number
+  std::string path; // file that's being read
+  int lineno;       // current line number
 
   void parse();
   void parseLine(const std::string &line);
-  size_t splitLine(const std::string &line,
-                   std::vector<std::string> &bits);
-  size_t parseString(const std::string &line,
-                     size_t pos,
-                     std::string &bit,
+  size_t splitLine(const std::string &line, std::vector<std::string> &bits);
+  size_t parseString(const std::string &line, size_t pos, std::string &bit,
                      char q);
   static int decodeHex(char c);
 };
