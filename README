@@ -5,6 +5,9 @@ blockad is a daemon that monitors your logfiles for persistent
 break-in attempts and blocks further connections, either using the
 system's firewall or using TCP wrappers (hosts.deny).
 
+** I will not be maintaining blockad any more. **
+** I have switched to an alternative solution. **
+
 Requirements
 ============
 
